@@ -1,0 +1,37 @@
+# Lazarus/Free Pascal build artifacts
+*.exe
+*.dll
+*.so
+*.dylib
+*.o
+*.ppu
+*.a
+*.compiled
+*.rst
+*.or
+*.s
+*.ppl
+
+# Lazarus backup and temp files
+*.bak
+*.~*
+*.log
+*.dbg
+
+# Lazarus IDE folders
+lib/
+backup/
+tmp/
+units/
+build/
+bin/
+
+# Lazarus session and environment files (optional)
+*.lps
+environmentoptions.xml
+lib/*
+
+# OS-specific
+.DS_Store
+Thumbs.db
+desktop.ini
