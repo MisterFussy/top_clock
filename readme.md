@@ -67,7 +67,7 @@ The clock uses:
 
 1. Clone the repository:
    ```
-   git clone https://github.com/MisterFussy/lazarus-clock.git
+   git clone https://github.com/MisterFussy/top_clock.git
    ```
 2. Open the project in Lazarus:
    ```
