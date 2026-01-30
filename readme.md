@@ -22,7 +22,7 @@ Its minimal footprint keeps the current time visible at all times without gettin
 
 The clock uses:
 
-- A `TTimer` component to update a `TLabel` component once per second  
+- A `TTimer` component to call the Form's Paint method every second (to draw the time)
 - Events to handle:
   - Dragging the clock around the screen
   - Displaying a help dialog
@@ -108,4 +108,3 @@ Pull requests are welcome.
 
 This project is released under the **MIT License**.  
 You are free to use, modify, and distribute it.
-
