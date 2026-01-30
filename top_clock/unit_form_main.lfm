@@ -1,28 +1,43 @@
 object FormMain: TFormMain
   Left = 534
-  Height = 41
+  Height = 44
   Top = 37
-  Width = 119
+  Width = 141
   Caption = 'FormMain'
-  ClientHeight = 41
-  ClientWidth = 176
   DesignTimePPI = 144
+  Position = poDefault
   LCLVersion = '4.4.0.0'
   OnCreate = FormCreate
   OnDblClick = FormDblClick
   OnMouseDown = FormMouseDown
-  OnResize = FormResize
-  object LabelTime: TLabel
-    Left = 8
-    Height = 25
-    Top = 8
-    Width = 79
-    Caption = 'LabelTime'
-    OnDblClick = LabelTimeDblClick
-  end
+  OnPaint = FormPaint
   object TimerSecond: TTimer
     OnTimer = TimerSecondTimer
-    Left = 88
-    Top = 8
+    Left = 56
+    Top = 3
+  end
+  object PopupMenu1: TPopupMenu
+    Left = 8
+    Top = 3
+    object MenuItemInstruction: TMenuItem
+      Caption = 'Instruction ,,,'
+      OnClick = MenuItemInstructionClick
+    end
+    object MenuItemAbout: TMenuItem
+      Caption = 'About ...'
+      OnClick = MenuItemAboutClick
+    end
+    object Separator1: TMenuItem
+      Caption = '-'
+    end
+    object MenuItemClose: TMenuItem
+      Caption = 'Close'
+      OnClick = MenuItemCloseClick
+    end
+  end
+  object TimerFader: TTimer
+    Interval = 100
+    OnTimer = TimerFaderTimer
+    Left = 96
   end
 end

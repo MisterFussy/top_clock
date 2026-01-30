@@ -29,6 +29,7 @@ def text_to_image(input_file, output_file):
                 pixels[x, y] = (255, 255,   0, 255)  # yellow
             else:
                 pixels[x, y] = (  0,   0,   0,   0)  # transparent
+                               #  Red  Gren Blue Alpha
 
     img.save(output_file, "PNG")
     print(f"Saved image: {output_file}")

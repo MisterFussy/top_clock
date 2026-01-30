@@ -11,26 +11,34 @@ interface
 
 uses
   StdCtrls, ExtCtrls, LCLIntf, LCLType, Windows,
-  Classes, SysUtils, Forms, Controls, Graphics, Dialogs;
+  Classes, SysUtils, Forms, Controls, Graphics, Dialogs, Menus;
 
 type
 
   { TFormMain }
 
   TFormMain = class(TForm)
-    LabelTime: TLabel;
+    MenuItemClose: TMenuItem;
+    MenuItemInstruction: TMenuItem;
+    MenuItemAbout: TMenuItem;
+    PopupMenu1: TPopupMenu;
+    Separator1: TMenuItem;
+    TimerFader: TTimer;
     TimerSecond: TTimer;
     procedure FormCreate(Sender: TObject);
+    procedure FormPaint(Sender: TObject);
     procedure FormDblClick(Sender: TObject);
     procedure FormMouseDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
-    procedure FormResize(Sender: TObject);
-    procedure LabelTimeDblClick(Sender: TObject);
+    procedure MenuItemAboutClick(Sender: TObject);
+    procedure MenuItemCloseClick(Sender: TObject);
+    procedure MenuItemInstructionClick(Sender: TObject);
+    procedure TimerFaderTimer(Sender: TObject);
     procedure TimerSecondTimer(Sender: TObject);
   private
 
   public
-
+    FadeCountDown : Boolean;
   end;
 
 var
@@ -42,30 +50,72 @@ implementation
 
 { TFormMain }
 
+const DisplayText = '12:34';
+
 procedure TFormMain.FormCreate(Sender: TObject);
 var
-  R : HRGN;
+  Region : HRGN;
 begin
-  TimerSecond.Interval  := 1000; // 1 second
-  TimerSecond.Enabled   := True;
+  TimerSecond.Interval := 1000; // 1 second
+  TimerSecond.Enabled  := True;
 
-  LabelTime.Caption     := TimeToStr(Time);
-  LabelTime.OnMouseDown := @FormMouseDown;
-  LabelTime.Align       := alClient;
-
-  BorderIcons           := [];     // disable all borders
-  BorderStyle           := bsNone; // disable caption bar and borders
-  FormStyle             := fsSystemStayOnTop;
+  BorderIcons          := [];     // disable all borders
+  BorderStyle          := bsNone; // disable caption bar and borders
+  FormStyle            := fsSystemStayOnTop;
+  Color                := clBlack;
 
   // round corners of form
-  R                 := CreateRoundRectRgn(0, 0, Width, Height, 20, 20);
-  SetWindowRgn(Handle, R, True);
+  Region               := CreateRoundRectRgn(0, 0, Width, Height, 20, 20);
+  SetWindowRgn(Handle, Region, True);
+
+  // make form partially transparent
+  AlphaBlend           := True;
+  AlphaBlendValue      := 150;
+
+end;
+
+// Using a TLabel is too difficult to size & center properly, hence
+// the form is painte below - time added with Canvas.TextOut()
+procedure TFormMain.FormPaint(Sender: TObject);
+var
+  ScreenText : string;
+  TargetWidth: Integer;
+  FontSize   : Integer;
+begin
+  ScreenText         := TimeToStr(Time);  // current time is displayed
+  TargetWidth        := ClientWidth - 10; // small margin
+  FontSize           := 12;               // starting font size
+
+  Canvas.Font.Color  := clWhite;
+
+  // Increase font size until text is almost as wide as the form
+  Canvas.Font.Size   := FontSize;
+  while (Canvas.TextWidth(ScreenText) < TargetWidth) do
+  begin
+    Inc(FontSize);
+    Canvas.Font.Size := FontSize;
+  end;
+
+  // If we overshot, step back one
+  if Canvas.TextWidth(ScreenText) > TargetWidth then
+  begin
+    Dec(FontSize);
+    Canvas.Font.Size := FontSize;
+  end;
+
+  // Draw centered vertically and horizontally
+  Canvas.TextOut(
+    (ClientWidth  - Canvas.TextWidth (ScreenText)) div 2,
+    (ClientHeight - Canvas.TextHeight(ScreenText)) div 2,
+    ScreenText
+  );
 end;
 
 procedure TFormMain.FormDblClick(Sender: TObject);
 begin
   Close;
 end;
+
 
 procedure TFormMain.FormMouseDown(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);
@@ -77,32 +127,60 @@ begin
   end
   else
   begin
-  MessageDlg('About this clock',
-             'Instructions:' + LineEnding +
-             ' - Left Mouse Down Drag    - moves clock' + LineEnding +
-             ' - Left Mouse Double Click - turns off clock' + LineEnding +
-             ' - Right Mouse Click       - this message dialog' + LineEnding +
-             LineEnding +
-             'Brought to you by:' + LineEnding +
-             'Mister Fussy',
-             mtInformation, [mbOK], 0);
+    PopupMenu1.Popup(Mouse.CursorPos.X, Mouse.CursorPos.Y);
   end;
 end;
 
-procedure TFormMain.FormResize(Sender: TObject);
+
+procedure TFormMain.MenuItemAboutClick(Sender: TObject);
 begin
-//  LabelTime.Font.Size := Round(Width / 12);
-  LabelTime.Font.Size := Round(Height / 4);
+  MessageDlg('Brought to you by:' + LineEnding +
+             'Mister Fussy' +
+              LineEnding,
+              mtInformation, [mbOK], 0);
 end;
 
-procedure TFormMain.LabelTimeDblClick(Sender: TObject);
+procedure TFormMain.MenuItemCloseClick(Sender: TObject);
 begin
   Close;
 end;
 
+procedure TFormMain.MenuItemInstructionClick(Sender: TObject);
+begin
+  MessageDlg('Instructions:' + LineEnding +
+             ' - Left Mouse Down Drag    - moves clock' + LineEnding +
+             ' - Left Mouse Double Click - turns off clock' + LineEnding +
+             ' - Right Mouse Click       - popup menu' + LineEnding +
+             LineEnding,
+             mtInformation, [mbOK], 0);
+end;
+
+procedure TFormMain.TimerFaderTimer(Sender: TObject);
+const ALPHA_DELTA : integer = 0; // set to 10 and see the app fade in and out
+begin
+  if FadeCountDown then
+    AlphaBlendValue := AlphaBlendValue - ALPHA_DELTA
+  else
+    AlphaBlendValue := AlphaBlendValue + ALPHA_DELTA;
+
+  if AlphaBlendValue < 0 + ALPHA_DELTA then
+    begin
+      AlphaBlendValue := ALPHA_DELTA + 1;
+      FadeCountDown   := False;
+    end;
+
+  if AlphaBlendValue > 255 - ALPHA_DELTA then
+    begin
+      AlphaBlendValue := 255 - ALPHA_DELTA - 1;
+      FadeCountDown   := True;
+    end;
+
+  Invalidate;
+end;
+
 procedure TFormMain.TimerSecondTimer(Sender: TObject);
 begin
-  LabelTime.Caption := TimeToStr(Time);
+  Invalidate;
 end;
 
 end.
