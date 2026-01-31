@@ -2,14 +2,18 @@ object FormMain: TFormMain
   Left = 534
   Height = 44
   Top = 37
-  Width = 141
-  Caption = 'FormMain'
+  Width = 143
+  Caption = 'Top Clock'
   DesignTimePPI = 144
+  PopupMenu = PopupMenu1
   Position = poDefault
   LCLVersion = '4.4.0.0'
+  OnChangeBounds = FormChangeBounds
   OnCreate = FormCreate
   OnDblClick = FormDblClick
   OnMouseDown = FormMouseDown
+  OnMouseMove = FormMouseMove
+  OnMouseUp = FormMouseUp
   OnPaint = FormPaint
   object TimerSecond: TTimer
     OnTimer = TimerSecondTimer
@@ -39,5 +43,6 @@ object FormMain: TFormMain
     Interval = 100
     OnTimer = TimerFaderTimer
     Left = 96
+    Top = 3
   end
 end

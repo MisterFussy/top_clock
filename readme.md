@@ -11,6 +11,7 @@ Its minimal footprint keeps the current time visible at all times without gettin
 - Minimal footprint
 - Always on top
 - Moveable to anywhere on screen
+- Variable transparency
 
 ---
 ## 📸 Screenshot  
@@ -27,6 +28,7 @@ The clock uses:
   - Dragging the clock around the screen
   - Displaying a help dialog
   - Closing the clock
+  - Fading the background
 - Properties to handle:
   - Removing border icons (BorderIcons := [];)
   - Removing captions (BorderStyle := bsNone;)
@@ -63,7 +65,7 @@ The clock uses:
 - **Lazarus IDE** (v4.4 or later) 
 - **Free Pascal Compiler** (FPC 3.2.2 ro later)
 
-### Build & Run
+### Build
 
 1. Clone the repository:
    ```
@@ -87,8 +89,22 @@ The clock uses:
 
 4. Press **Run** (F9)
    ```
-   The clock window should appear immediately
+   The clock window should appear immediately in the upper-left hand corner
    ```
+
+### Run Operation
+
+Once the clock appears, initialy in the upper left hand corner of the screen, you can perform the following actions:
+
+1. Drag and drop the clock around your screen
+   - Press the left mouse button, and hold down while dragging
+2. Change the transparency of the clock (fading)
+   - Hold the Shift key while pressig the left mouse button, and dragging left or right
+   - It my be necessary to resize the clock to be big first, if the fading does not work
+3. Bring up menu
+   - Right click to bring up a menu
+4. Close
+   - Double click on the clock to quit
 
 ---
 ## 🧪 Future Enhancements
