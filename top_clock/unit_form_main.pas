@@ -10,7 +10,7 @@ unit unit_form_main;
 interface
 
 uses
-  StdCtrls, ExtCtrls, LCLIntf, LCLType, Windows,
+  StdCtrls, ExtCtrls, LCLIntf, LCLType, Windows, unit_form_fade,
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, Menus;
 
 type
@@ -18,6 +18,7 @@ type
   { TFormMain }
 
   TFormMain = class(TForm)
+    MenuItemFader: TMenuItem;
     MenuItemClose: TMenuItem;
     MenuItemInstruction: TMenuItem;
     MenuItemAbout: TMenuItem;
@@ -25,7 +26,11 @@ type
     Separator1: TMenuItem;
     TimerFader: TTimer;
     TimerSecond: TTimer;
+    procedure FormChangeBounds(Sender: TObject);
     procedure FormCreate(Sender: TObject);
+    procedure FormMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
+    procedure FormMouseUp(Sender: TObject; Button: TMouseButton;
+      Shift: TShiftState; X, Y: Integer);
     procedure FormPaint(Sender: TObject);
     procedure FormDblClick(Sender: TObject);
     procedure FormMouseDown(Sender: TObject; Button: TMouseButton;
@@ -36,9 +41,11 @@ type
     procedure TimerFaderTimer(Sender: TObject);
     procedure TimerSecondTimer(Sender: TObject);
   private
-
+    DragActive    : boolean;
+    LastMouseX    : integer;
+    procedure WMNCHitTest(var Msg: TWMNCHitTest); message WM_NCHITTEST;
   public
-    FadeCountDown : Boolean;
+    FadeCountDown : boolean;
   end;
 
 var
@@ -50,11 +57,20 @@ implementation
 
 { TFormMain }
 
-const DisplayText = '12:34';
-
-procedure TFormMain.FormCreate(Sender: TObject);
+procedure TFormMain.FormChangeBounds(Sender: TObject);
 var
   Region : HRGN;
+  Radius : integer;
+begin
+  inherited;
+  // round corners of form
+  Radius := Round((Width + Height) / 8);
+  Region := CreateRoundRectRgn(0, 0, Width, Height, Radius, Radius);
+  SetWindowRgn(Handle, Region, True);
+end;
+
+
+procedure TFormMain.FormCreate(Sender: TObject);
 begin
   TimerSecond.Interval := 1000; // 1 second
   TimerSecond.Enabled  := True;
@@ -64,14 +80,38 @@ begin
   FormStyle            := fsSystemStayOnTop;
   Color                := clBlack;
 
-  // round corners of form
-  Region               := CreateRoundRectRgn(0, 0, Width, Height, 20, 20);
-  SetWindowRgn(Handle, Region, True);
-
   // make form partially transparent
   AlphaBlend           := True;
-  AlphaBlendValue      := 150;
+  AlphaBlendValue      := 130;
+  DragActive           := False;
 
+end;
+
+procedure TFormMain.FormMouseMove(Sender: TObject; Shift: TShiftState; X,
+  Y: Integer);
+begin
+  if DragActive then
+   begin
+     if X < LastMouseX then
+     begin
+       if AlphaBlendValue > 40 then  // moved left → decrement
+         AlphaBlendValue := AlphaBlendValue - 1;
+     end
+     else if X > LastMouseX then
+     begin
+       if AlphaBlendValue < 255 then // moved right → increment
+         AlphaBlendValue := AlphaBlendValue + 1;
+     end;
+
+     LastMouseX := X;                // save last mouse position
+     Invalidate;                     // repaint
+   end;
+end;
+
+procedure TFormMain.FormMouseUp(Sender: TObject; Button: TMouseButton;
+  Shift: TShiftState; X, Y: Integer);
+begin
+  DragActive := False;
 end;
 
 // Using a TLabel is too difficult to size & center properly, hence
@@ -120,17 +160,21 @@ end;
 procedure TFormMain.FormMouseDown(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);
 begin
-  if Button = mbLeft then
+  inherited;
+  if (Button = mbLeft) and (ssShift in Shift) then
   begin
-    ReleaseCapture;
-    SendMessage(Handle, WM_NCLBUTTONDOWN, HTCAPTION, 0);
+    DragActive := True;
+    LastMouseX := X;
   end
   else
   begin
-    PopupMenu1.Popup(Mouse.CursorPos.X, Mouse.CursorPos.Y);
+    if Button = mbLeft then
+    begin
+      ReleaseCapture;
+      SendMessage(Handle, WM_NCLBUTTONDOWN, HTCAPTION, 0);
+    end;
   end;
 end;
-
 
 procedure TFormMain.MenuItemAboutClick(Sender: TObject);
 begin
@@ -150,6 +194,7 @@ begin
   MessageDlg('Instructions:' + LineEnding +
              ' - Left Mouse Down Drag    - moves clock' + LineEnding +
              ' - Left Mouse Double Click - turns off clock' + LineEnding +
+             ' - Shift with Left Mouse Down, Drag left/right - Fades background' + LineEnding +
              ' - Right Mouse Click       - popup menu' + LineEnding +
              LineEnding,
              mtInformation, [mbOK], 0);
@@ -181,6 +226,30 @@ end;
 procedure TFormMain.TimerSecondTimer(Sender: TObject);
 begin
   Invalidate;
+end;
+
+
+procedure TFormMain.WMNCHitTest(var Msg: TWMNCHitTest);
+const
+  GripSize = 8;  // pixels near edge that trigger resize
+var
+  X, Y: Integer;
+begin
+  inherited;
+
+  X := Msg.XPos - Left;
+  Y := Msg.YPos - Top;
+
+  // Corners
+  if      (X <         GripSize) and (Y <          GripSize) then Msg.Result := HTTOPLEFT
+  else if (X > Width - GripSize) and (Y <          GripSize) then Msg.Result := HTTOPRIGHT
+  else if (X <         GripSize) and (Y > Height - GripSize) then Msg.Result := HTBOTTOMLEFT
+  else if (X > Width - GripSize) and (Y > Height - GripSize) then Msg.Result := HTBOTTOMRIGHT
+  // Edges
+  else if (X <          GripSize) then Msg.Result := HTLEFT
+  else if (X > Width  - GripSize) then Msg.Result := HTRIGHT
+  else if (Y <          GripSize) then Msg.Result := HTTOP
+  else if (Y > Height - GripSize) then Msg.Result := HTBOTTOM;
 end;
 
 end.
