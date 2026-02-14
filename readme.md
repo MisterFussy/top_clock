@@ -12,6 +12,7 @@ Its minimal footprint keeps the current time visible at all times without gettin
 - Always on top
 - Moveable to anywhere on screen
 - Variable transparency
+- Variable size
 
 ---
 ## 📸 Screenshot  
@@ -26,9 +27,10 @@ The clock uses:
 - A `TTimer` component to call the Form's Paint method every second (to draw the time)
 - Events to handle:
   - Dragging the clock around the screen
+  - Resizing the clock
+  - Fading the clock in and out
   - Displaying a help dialog
   - Closing the clock
-  - Fading the background
 - Properties to handle:
   - Removing border icons (BorderIcons := [];)
   - Removing captions (BorderStyle := bsNone;)
@@ -75,19 +77,7 @@ The clock uses:
    ```
    top_clock.lpi
    ```
-3. Add the icon file:
-   
-   See the /icon_build/readme.md file for how to create the icon
-
-   ```
-   Shift+Ctrl+F11        – Project Options
-   Load Icon             – Opens navigation window
-   /icon_build           – Location of PNG used for icon
-   led7segment_12_34.png – Opens colored version of translated .txt file
-   OK                    – Accept project options
-   ```
-
-4. Press **Run** (F9)
+3. Press **Run** (F9)
    ```
    The clock window should appear immediately in the upper-left hand corner
    ```
@@ -99,11 +89,12 @@ Once the clock appears, initialy in the upper left hand corner of the screen, yo
 1. Drag and drop the clock around your screen
    - Press the left mouse button, and hold down while dragging
 2. Change the transparency of the clock (fading)
-   - Hold the Shift key while pressig the left mouse button, and dragging left or right
-   - It my be necessary to resize the clock to be big first, if the fading does not work
-3. Bring up menu
+   - Scroll the mouse wheel up and down to fade the application in and out
+3. Change the size of the clock
+   - Move mouse near an edge, and drag
+4. Bring up menu
    - Right click to bring up a menu
-4. Close
+5. Close
    - Double click on the clock to quit
 
 ---
