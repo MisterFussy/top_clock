@@ -10,8 +10,8 @@ unit unit_form_main;
 interface
 
 uses
-  StdCtrls, ExtCtrls, LCLIntf, LCLType, Windows, unit_form_fade,
-  Classes, SysUtils, Forms, Controls, Graphics, Dialogs, Menus;
+  StdCtrls, ExtCtrls, LCLIntf, LCLType, Windows,
+  Classes, SysUtils, Forms, Controls, Graphics, Dialogs, Menus, Types;
 
 type
 
@@ -28,9 +28,8 @@ type
     TimerSecond: TTimer;
     procedure FormChangeBounds(Sender: TObject);
     procedure FormCreate(Sender: TObject);
-    procedure FormMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
-    procedure FormMouseUp(Sender: TObject; Button: TMouseButton;
-      Shift: TShiftState; X, Y: Integer);
+    procedure FormMouseWheel(Sender: TObject; Shift: TShiftState;
+      WheelDelta: Integer; MousePos: TPoint; var Handled: Boolean);
     procedure FormPaint(Sender: TObject);
     procedure FormDblClick(Sender: TObject);
     procedure FormMouseDown(Sender: TObject; Button: TMouseButton;
@@ -41,8 +40,6 @@ type
     procedure TimerFaderTimer(Sender: TObject);
     procedure TimerSecondTimer(Sender: TObject);
   private
-    DragActive    : boolean;
-    LastMouseX    : integer;
     procedure WMNCHitTest(var Msg: TWMNCHitTest); message WM_NCHITTEST;
   public
     FadeCountDown : boolean;
@@ -83,39 +80,23 @@ begin
   // make form partially transparent
   AlphaBlend           := True;
   AlphaBlendValue      := 130;
-  DragActive           := False;
 
 end;
 
-procedure TFormMain.FormMouseMove(Sender: TObject; Shift: TShiftState; X,
-  Y: Integer);
+procedure TFormMain.FormMouseWheel(Sender: TObject; Shift: TShiftState;
+  WheelDelta: Integer; MousePos: TPoint; var Handled: Boolean);
 begin
-  if DragActive then
-   begin
-     if X < LastMouseX then
-     begin
-       if AlphaBlendValue > 40 then  // moved left → decrement
-         AlphaBlendValue := AlphaBlendValue - 1;
-     end
-     else if X > LastMouseX then
-     begin
-       if AlphaBlendValue < 255 then // moved right → increment
-         AlphaBlendValue := AlphaBlendValue + 1;
-     end;
+  // Mouse wheel -> adjust AlphaBlendValue
+  if WheelDelta > 0 then
+    AlphaBlendValue := Min(255, AlphaBlendValue + 10)
+  else
+    AlphaBlendValue := Max(20, AlphaBlendValue - 10);
 
-     LastMouseX := X;                // save last mouse position
-     Invalidate;                     // repaint
-   end;
-end;
-
-procedure TFormMain.FormMouseUp(Sender: TObject; Button: TMouseButton;
-  Shift: TShiftState; X, Y: Integer);
-begin
-  DragActive := False;
+  Handled := True;
 end;
 
 // Using a TLabel is too difficult to size & center properly, hence
-// the form is painte below - time added with Canvas.TextOut()
+// the form is painted below - time added with Canvas.TextOut()
 procedure TFormMain.FormPaint(Sender: TObject);
 var
   ScreenText : string;
@@ -161,19 +142,11 @@ procedure TFormMain.FormMouseDown(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);
 begin
   inherited;
-  if (Button = mbLeft) and (ssShift in Shift) then
-  begin
-    DragActive := True;
-    LastMouseX := X;
-  end
-  else
-  begin
-    if Button = mbLeft then
+  if Button = mbLeft then
     begin
       ReleaseCapture;
       SendMessage(Handle, WM_NCLBUTTONDOWN, HTCAPTION, 0);
     end;
-  end;
 end;
 
 procedure TFormMain.MenuItemAboutClick(Sender: TObject);
@@ -191,11 +164,11 @@ end;
 
 procedure TFormMain.MenuItemInstructionClick(Sender: TObject);
 begin
-  MessageDlg('Instructions:' + LineEnding +
-             ' - Left Mouse Down Drag    - moves clock' + LineEnding +
-             ' - Left Mouse Double Click - turns off clock' + LineEnding +
-             ' - Shift with Left Mouse Down, Drag left/right - Fades background' + LineEnding +
-             ' - Right Mouse Click       - popup menu' + LineEnding +
+  MessageDlg('Instructions:' + LineEnding + LineEnding +
+             'Left Mouse Down Drag    '#9' - move clock' + LineEnding +
+             'Left Mouse Double Click '#9' - turn off clock' + LineEnding +
+             'Mouse Wheel Up/Down     '#9' - fade in/out' + LineEnding +
+             'Right Mouse Click       '#9' - popup menu' + LineEnding +
              LineEnding,
              mtInformation, [mbOK], 0);
 end;

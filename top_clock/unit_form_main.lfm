@@ -12,8 +12,7 @@ object FormMain: TFormMain
   OnCreate = FormCreate
   OnDblClick = FormDblClick
   OnMouseDown = FormMouseDown
-  OnMouseMove = FormMouseMove
-  OnMouseUp = FormMouseUp
+  OnMouseWheel = FormMouseWheel
   OnPaint = FormPaint
   object TimerSecond: TTimer
     OnTimer = TimerSecondTimer
