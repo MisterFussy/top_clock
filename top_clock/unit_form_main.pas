@@ -24,6 +24,7 @@ type
     MenuItemAbout: TMenuItem;
     PopupMenu1: TPopupMenu;
     Separator1: TMenuItem;
+    TimerHide: TTimer;
     TimerFader: TTimer;
     TimerSecond: TTimer;
     procedure FormChangeBounds(Sender: TObject);
@@ -38,6 +39,7 @@ type
     procedure MenuItemCloseClick(Sender: TObject);
     procedure MenuItemInstructionClick(Sender: TObject);
     procedure TimerFaderTimer(Sender: TObject);
+    procedure TimerHideTimer(Sender: TObject);
     procedure TimerSecondTimer(Sender: TObject);
   private
     procedure WMNCHitTest(var Msg: TWMNCHitTest); message WM_NCHITTEST;
@@ -71,6 +73,9 @@ procedure TFormMain.FormCreate(Sender: TObject);
 begin
   TimerSecond.Interval := 1000; // 1 second
   TimerSecond.Enabled  := True;
+
+  TimerHide.Interval   := 2000; // 2 seconds, hide window time
+  TimerHide.Enabled    := False;
 
   BorderIcons          := [];     // disable all borders
   BorderStyle          := bsNone; // disable caption bar and borders
@@ -144,8 +149,17 @@ begin
   inherited;
   if Button = mbLeft then
     begin
-      ReleaseCapture;
-      SendMessage(Handle, WM_NCLBUTTONDOWN, HTCAPTION, 0);
+      if ssShift in Shift then
+        begin
+          // hideo form, start timer
+          Visible           := False;
+          TimerHide.Enabled := True;
+        end
+      else
+        begin
+          ReleaseCapture;
+          SendMessage(Handle, WM_NCLBUTTONDOWN, HTCAPTION, 0);
+        end;
     end;
 end;
 
@@ -169,6 +183,7 @@ begin
              'Left Mouse Double Click '#9' - turn off clock' + LineEnding +
              'Mouse Wheel Up/Down     '#9' - fade in/out' + LineEnding +
              'Right Mouse Click       '#9' - popup menu' + LineEnding +
+             'Shift+Left Mouse Click  '#9' - hide for 2 sec' + LineEnding +
              LineEnding,
              mtInformation, [mbOK], 0);
 end;
@@ -194,6 +209,15 @@ begin
     end;
 
   Invalidate;
+end;
+
+procedure TFormMain.TimerHideTimer(Sender: TObject);
+begin
+  // Timer expired → show form again
+  Self.Show;
+  Self.BringToFront;
+
+  TimerHide.Enabled := False;
 end;
 
 procedure TFormMain.TimerSecondTimer(Sender: TObject);

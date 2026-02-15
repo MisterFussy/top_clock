@@ -2,7 +2,7 @@ object FormMain: TFormMain
   Left = 534
   Height = 44
   Top = 37
-  Width = 143
+  Width = 169
   Caption = 'Top Clock'
   DesignTimePPI = 144
   PopupMenu = PopupMenu1
@@ -16,7 +16,7 @@ object FormMain: TFormMain
   OnPaint = FormPaint
   object TimerSecond: TTimer
     OnTimer = TimerSecondTimer
-    Left = 56
+    Left = 48
     Top = 3
   end
   object PopupMenu1: TPopupMenu
@@ -41,7 +41,12 @@ object FormMain: TFormMain
   object TimerFader: TTimer
     Interval = 100
     OnTimer = TimerFaderTimer
-    Left = 96
+    Left = 88
+    Top = 3
+  end
+  object TimerHide: TTimer
+    OnTimer = TimerHideTimer
+    Left = 128
     Top = 3
   end
 end

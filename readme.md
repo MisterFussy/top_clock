@@ -8,11 +8,11 @@ Its minimal footprint keeps the current time visible at all times without gettin
 ## ⭐ Features
 
 - Real‑time digital clock display  
-- Minimal footprint
+- Minimal footprint (variable size)
 - Always on top
 - Moveable to anywhere on screen
 - Variable transparency
-- Variable size
+- Temporary hiding if obscuring a window or control
 
 ---
 ## 📸 Screenshot  
@@ -29,6 +29,7 @@ The clock uses:
   - Dragging the clock around the screen
   - Resizing the clock
   - Fading the clock in and out
+  - Hiding the clock, and making it reappear
   - Displaying a help dialog
   - Closing the clock
 - Properties to handle:
@@ -91,11 +92,13 @@ Once the clock appears, initialy in the upper left hand corner of the screen, yo
 2. Change the transparency of the clock (fading)
    - Scroll the mouse wheel up and down to fade the application in and out
 3. Change the size of the clock
-   - Move mouse near an edge, and drag
+   - Move mouse near an edge, and left mouse down and drag
 4. Bring up menu
    - Right click to bring up a menu
-5. Close
-   - Double click on the clock to quit
+5. Temporarily hide clock
+   - Hold Shift and click left mouse button
+6. Close
+   - Double click left on the clock to quit
 
 ---
 ## 🧪 Future Enhancements
