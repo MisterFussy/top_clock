@@ -33,9 +33,9 @@ The clock uses:
   - Displaying a help dialog
   - Closing the clock
 - Properties to handle:
-  - Removing border icons (BorderIcons := [];)
-  - Removing captions (BorderStyle := bsNone;)
-  - Keepiing form on top (FormStyle := fsSystemStayOnTop)
+  - Removing border icons (BorderIcons := [])
+  - Removing captions (BorderStyle := bsNone)
+  - Keeping form on top (FormStyle := fsSystemStayOnTop)
 
 ---
 ## 📂 Project Structure
@@ -66,7 +66,7 @@ The clock uses:
 
 ### Requirements
 - **Lazarus IDE** (v4.4 or later) 
-- **Free Pascal Compiler** (FPC 3.2.2 ro later)
+- **Free Pascal Compiler** (FPC 3.2.2 or later)
 
 ### Build
 

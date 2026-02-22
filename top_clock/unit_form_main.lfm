@@ -2,13 +2,14 @@ object FormMain: TFormMain
   Left = 534
   Height = 44
   Top = 37
-  Width = 169
+  Width = 134
   Caption = 'Top Clock'
   DesignTimePPI = 144
   PopupMenu = PopupMenu1
   Position = poDefault
   LCLVersion = '4.4.0.0'
   OnChangeBounds = FormChangeBounds
+  OnClose = FormClose
   OnCreate = FormCreate
   OnDblClick = FormDblClick
   OnMouseDown = FormMouseDown
@@ -25,6 +26,10 @@ object FormMain: TFormMain
     object MenuItemInstruction: TMenuItem
       Caption = 'Instruction ,,,'
       OnClick = MenuItemInstructionClick
+    end
+    object MenuItemOptions: TMenuItem
+      Caption = 'Options ...'
+      OnClick = MenuItemOptionsClick
     end
     object MenuItemAbout: TMenuItem
       Caption = 'About ...'

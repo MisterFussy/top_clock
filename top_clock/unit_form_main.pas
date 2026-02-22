@@ -10,6 +10,7 @@ unit unit_form_main;
 interface
 
 uses
+  unit_options, unit_form_options,
   StdCtrls, ExtCtrls, LCLIntf, LCLType, Windows,
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, Menus, Types;
 
@@ -18,6 +19,7 @@ type
   { TFormMain }
 
   TFormMain = class(TForm)
+    MenuItemOptions: TMenuItem;
     MenuItemFader: TMenuItem;
     MenuItemClose: TMenuItem;
     MenuItemInstruction: TMenuItem;
@@ -28,6 +30,7 @@ type
     TimerFader: TTimer;
     TimerSecond: TTimer;
     procedure FormChangeBounds(Sender: TObject);
+    procedure FormClose(Sender: TObject; var CloseAction: TCloseAction);
     procedure FormCreate(Sender: TObject);
     procedure FormMouseWheel(Sender: TObject; Shift: TShiftState;
       WheelDelta: Integer; MousePos: TPoint; var Handled: Boolean);
@@ -35,6 +38,7 @@ type
     procedure FormDblClick(Sender: TObject);
     procedure FormMouseDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
+    procedure MenuItemOptionsClick(Sender: TObject);
     procedure MenuItemAboutClick(Sender: TObject);
     procedure MenuItemCloseClick(Sender: TObject);
     procedure MenuItemInstructionClick(Sender: TObject);
@@ -42,6 +46,8 @@ type
     procedure TimerHideTimer(Sender: TObject);
     procedure TimerSecondTimer(Sender: TObject);
   private
+    OptionsForm: TFormOptions;
+    function FormatTimeString: string;
     procedure WMNCHitTest(var Msg: TWMNCHitTest); message WM_NCHITTEST;
   public
     FadeCountDown : boolean;
@@ -49,6 +55,10 @@ type
 
 var
   FormMain: TFormMain;
+
+var
+  StopwatchStart : TDateTime;
+  TimerRemaining : Integer;
 
 implementation
 
@@ -63,30 +73,49 @@ var
 begin
   inherited;
   // round corners of form
+  // see TFormMain.WMNCHitTest() for use of same equation
   Radius := Round((Width + Height) / 8);
   Region := CreateRoundRectRgn(0, 0, Width, Height, Radius, Radius);
   SetWindowRgn(Handle, Region, True);
 end;
 
 
+procedure TFormMain.FormClose(Sender: TObject; var CloseAction: TCloseAction);
+begin
+  inherited;
+  SaveOptions(Self);
+end;
+
+
 procedure TFormMain.FormCreate(Sender: TObject);
 begin
-  TimerSecond.Interval := 1000; // 1 second
-  TimerSecond.Enabled  := True;
+  AppOptions            := DefaultAppOptions; // load defaults for all
+  LoadOptions(Self);                          // .ini file over-rides
 
-  TimerHide.Interval   := 2000; // 2 seconds, hide window time
-  TimerHide.Enabled    := False;
+  StopwatchStart        := Now;
+  TimerRemaining        := AppOptions.TimerSeconds;
 
-  BorderIcons          := [];     // disable all borders
-  BorderStyle          := bsNone; // disable caption bar and borders
-  FormStyle            := fsSystemStayOnTop;
-  Color                := clBlack;
+  TimerSecond.Interval  := 1000; // 1 second
+  TimerSecond.Enabled   := True;
+
+  TimerHide.Interval    := 2000; // 2 seconds, hide window time
+  TimerHide.Enabled     := False;
+
+  BorderIcons           := [];     // disable all borders
+  BorderStyle           := bsNone; // disable caption bar and borders
+  FormStyle             := fsSystemStayOnTop;
+  Color                 := AppOptions.DisplayColor;
 
   // make form partially transparent
-  AlphaBlend           := True;
-  AlphaBlendValue      := 130;
+  AlphaBlend            := True;
+  AlphaBlendValue       := 130;
+
+  // limit the minimum size
+  Constraints.MinWidth  := 60;
+  Constraints.MinHeight := 20;
 
 end;
+
 
 procedure TFormMain.FormMouseWheel(Sender: TObject; Shift: TShiftState;
   WheelDelta: Integer; MousePos: TPoint; var Handled: Boolean);
@@ -100,42 +129,49 @@ begin
   Handled := True;
 end;
 
+
 // Using a TLabel is too difficult to size & center properly, hence
 // the form is painted below - time added with Canvas.TextOut()
 procedure TFormMain.FormPaint(Sender: TObject);
 var
-  ScreenText : string;
-  TargetWidth: Integer;
-  FontSize   : Integer;
+  ScreenText   : string;
+  TargetWidth  ,
+  TargetHeight : Integer;
+  FontSize     : Integer;
+  Margin       : Integer;
 begin
-  ScreenText         := TimeToStr(Time);  // current time is displayed
-  TargetWidth        := ClientWidth - 10; // small margin
-  FontSize           := 12;               // starting font size
+  Color := AppOptions.DisplayColor;
+  ScreenText         := FormatTimeString; // current time formatted
+  Margin             := 1;
+  TargetWidth        := ClientWidth  - Margin;
+  TargetHeight       := ClientHeight - Margin;
+  FontSize           := 8;                 // starting font size
+  Canvas.Font.Color  := AppOptions.TextColor;
 
-  Canvas.Font.Color  := clWhite;
-
-  // Increase font size until text is almost as wide as the form
+  // increase font size until text is almost as wide as the form
   Canvas.Font.Size   := FontSize;
-  while (Canvas.TextWidth(ScreenText) < TargetWidth) do
+  while (Canvas.TextWidth(ScreenText) < TargetWidth) and
+    (Canvas.TextHeight(ScreenText) < TargetHeight) do
   begin
     Inc(FontSize);
     Canvas.Font.Size := FontSize;
   end;
 
-  // If we overshot, step back one
+  // if we overshot, step back one
   if Canvas.TextWidth(ScreenText) > TargetWidth then
   begin
     Dec(FontSize);
     Canvas.Font.Size := FontSize;
   end;
 
-  // Draw centered vertically and horizontally
+  // draw centered vertically and horizontally
   Canvas.TextOut(
     (ClientWidth  - Canvas.TextWidth (ScreenText)) div 2,
     (ClientHeight - Canvas.TextHeight(ScreenText)) div 2,
     ScreenText
   );
 end;
+
 
 procedure TFormMain.FormDblClick(Sender: TObject);
 begin
@@ -163,19 +199,33 @@ begin
     end;
 end;
 
+
+procedure TFormMain.MenuItemOptionsClick(Sender: TObject);
+begin
+  if not Assigned(FormOptions) then
+    FormOptions := TFormOptions.Create(Self);
+
+  FormOptions.Show;
+end;
+
 procedure TFormMain.MenuItemAboutClick(Sender: TObject);
 begin
   MessageDlg('Brought to you by:' + LineEnding +
-             'Mister Fussy' +
+             'Mister Fussy' + LineEnding +
+             'Executble And Source Available At:' + LineEnding +
+             'https://github.com/MisterFussy/top_clock' + LineEnding +
               LineEnding,
               mtInformation, [mbOK], 0);
 end;
+
 
 procedure TFormMain.MenuItemCloseClick(Sender: TObject);
 begin
   Close;
 end;
 
+
+(* TODO: Make custom, and non-modal *)
 procedure TFormMain.MenuItemInstructionClick(Sender: TObject);
 begin
   MessageDlg('Instructions:' + LineEnding + LineEnding +
@@ -211,6 +261,7 @@ begin
   Invalidate;
 end;
 
+
 procedure TFormMain.TimerHideTimer(Sender: TObject);
 begin
   // Timer expired → show form again
@@ -222,31 +273,69 @@ end;
 
 procedure TFormMain.TimerSecondTimer(Sender: TObject);
 begin
-  Invalidate;
+  Invalidate; // calls FormPaint() every second
 end;
 
 
 procedure TFormMain.WMNCHitTest(var Msg: TWMNCHitTest);
 const
-  GripSize = 8;  // pixels near edge that trigger resize
+  GripSize = 8;     // pixels near edge that trigger resize
 var
-  X, Y: Integer;
+  X, Y   : Integer; // mouse position relative to edges
+  Radius : integer; // radius of corner, adjusted for GripSize
 begin
   inherited;
-
   X := Msg.XPos - Left;
   Y := Msg.YPos - Top;
-
-  // Corners
-  if      (X <         GripSize) and (Y <          GripSize) then Msg.Result := HTTOPLEFT
-  else if (X > Width - GripSize) and (Y <          GripSize) then Msg.Result := HTTOPRIGHT
-  else if (X <         GripSize) and (Y > Height - GripSize) then Msg.Result := HTBOTTOMLEFT
-  else if (X > Width - GripSize) and (Y > Height - GripSize) then Msg.Result := HTBOTTOMRIGHT
-  // Edges
+  // see TFormMain.FormChangeBounds() for use of same equation
+  Radius := Round(((Width + Height) / 8) / (GripSize / 2));
+  // corners
+  if      (X <         (GripSize + Radius)) and (Y <          (GripSize + Radius)) then Msg.Result := HTTOPLEFT
+  else if (X > Width - (GripSize + Radius)) and (Y <          (GripSize + Radius)) then Msg.Result := HTTOPRIGHT
+  else if (X <         (GripSize + Radius)) and (Y > Height - (GripSize + Radius)) then Msg.Result := HTBOTTOMLEFT
+  else if (X > Width - (GripSize + Radius)) and (Y > Height - (GripSize + Radius)) then Msg.Result := HTBOTTOMRIGHT
+  // edges
   else if (X <          GripSize) then Msg.Result := HTLEFT
   else if (X > Width  - GripSize) then Msg.Result := HTRIGHT
   else if (Y <          GripSize) then Msg.Result := HTTOP
   else if (Y > Height - GripSize) then Msg.Result := HTBOTTOM;
+end;
+
+function TFormMain.FormatTimeString: string;
+var
+  date_time : TDateTime;
+begin
+  case AppOptions.RunMode of
+
+    rmClock:
+      date_time := Now;
+
+    rmStopwatch:
+      date_time := Now - StopwatchStart;
+
+    rmTimer:
+      begin
+        Dec(TimerRemaining);
+        if TimerRemaining < 0 then TimerRemaining := 0;
+        date_time := EncodeTime(0,0,TimerRemaining,0);
+      end;
+  end;
+
+  case AppOptions.TimeFormat of
+    tf12Hour:
+      if AppOptions.ShowSeconds then
+        Result := FormatDateTime('hh:mm:ss am/pm', date_time)
+      else
+        Result := FormatDateTime('hh:mm am/pm', date_time);
+
+    tf24Hour:
+      if AppOptions.ShowSeconds then
+        Result := FormatDateTime('hh:mm:ss', date_time)
+      else
+        Result := FormatDateTime('hh:mm', date_time);
+
+  end;
+
 end;
 
 end.
