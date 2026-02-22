@@ -11,6 +11,7 @@
 *.or
 *.s
 *.ppl
+*.ini
 
 # Lazarus backup and temp files
 *.bak
