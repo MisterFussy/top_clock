@@ -1,0 +1,38 @@
+object FormAbout: TFormAbout
+  Left = 478
+  Height = 185
+  Top = 37
+  Width = 377
+  Caption = 'FormAbout'
+  ClientHeight = 185
+  ClientWidth = 377
+  DesignTimePPI = 144
+  LCLVersion = '4.4.0.0'
+  OnCreate = FormCreate
+  object LabelLink: TLabel
+    Left = 8
+    Height = 25
+    Top = 96
+    Width = 72
+    Caption = 'LabelLink'
+    OnClick = LabelLinkClick
+    OnMouseEnter = LabelLinkMouseEnter
+    OnMouseLeave = LabelLinkMouseLeave
+  end
+  object ButtonClose: TButton
+    Left = 88
+    Height = 38
+    Top = 136
+    Width = 201
+    Caption = 'Close About Dialog'
+    TabOrder = 0
+    OnClick = ButtonCloseClick
+  end
+  object LabelAbout: TLabel
+    Left = 8
+    Height = 75
+    Top = 8
+    Width = 329
+    Caption = 'Brought to you by: Mister Fussy'#13#10#13#10'Latest executble and source available at:   '
+  end
+end

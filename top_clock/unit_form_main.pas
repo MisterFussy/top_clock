@@ -10,7 +10,8 @@ unit unit_form_main;
 interface
 
 uses
-  unit_options, unit_form_options,
+  unit_options, unit_form_placer, unit_form_options,
+  unit_form_instructions, unit_form_about,
   StdCtrls, ExtCtrls, LCLIntf, LCLType, Windows,
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, Menus, Types;
 
@@ -140,7 +141,7 @@ var
   FontSize     : Integer;
   Margin       : Integer;
 begin
-  Color := AppOptions.DisplayColor;
+  Color              := AppOptions.DisplayColor;
   ScreenText         := FormatTimeString; // current time formatted
   Margin             := 1;
   TargetWidth        := ClientWidth  - Margin;
@@ -187,7 +188,7 @@ begin
     begin
       if ssShift in Shift then
         begin
-          // hideo form, start timer
+          // hide form, start timer
           Visible           := False;
           TimerHide.Enabled := True;
         end
@@ -205,17 +206,18 @@ begin
   if not Assigned(FormOptions) then
     FormOptions := TFormOptions.Create(Self);
 
+  PlaceFormRelative(FormMain, FormOptions, psBelowThenAboveThenCenter, 8);
   FormOptions.Show;
 end;
 
+
 procedure TFormMain.MenuItemAboutClick(Sender: TObject);
 begin
-  MessageDlg('Brought to you by:' + LineEnding +
-             'Mister Fussy' + LineEnding +
-             'Executble And Source Available At:' + LineEnding +
-             'https://github.com/MisterFussy/top_clock' + LineEnding +
-              LineEnding,
-              mtInformation, [mbOK], 0);
+  if not Assigned(FormAbout) then
+    FormAbout := TFormAbout.Create(Self);
+
+  PlaceFormRelative(FormMain, FormAbout, psBelowThenAboveThenCenter, 8);
+  FormAbout.Show;
 end;
 
 
@@ -225,17 +227,24 @@ begin
 end;
 
 
-(* TODO: Make custom, and non-modal *)
 procedure TFormMain.MenuItemInstructionClick(Sender: TObject);
 begin
-  MessageDlg('Instructions:' + LineEnding + LineEnding +
-             'Left Mouse Down Drag    '#9' - move clock' + LineEnding +
-             'Left Mouse Double Click '#9' - turn off clock' + LineEnding +
-             'Mouse Wheel Up/Down     '#9' - fade in/out' + LineEnding +
-             'Right Mouse Click       '#9' - popup menu' + LineEnding +
-             'Shift+Left Mouse Click  '#9' - hide for 2 sec' + LineEnding +
-             LineEnding,
-             mtInformation, [mbOK], 0);
+//  MessageDlg('Instructions:' + LineEnding + LineEnding +
+//             'Left Mouse Down Drag    '#9' - move clock' + LineEnding +
+//             'Left Mouse Double Click '#9' - turn off clock' + LineEnding +
+//             'Mouse Wheel Up/Down     '#9' - fade in/out' + LineEnding +
+//             'Right Mouse Click       '#9' - popup menu' + LineEnding +
+//             'Shift+Left Mouse Click  '#9' - hide for 2 sec' + LineEnding +
+//             LineEnding,
+//             mtInformation, [mbOK], 0);
+
+  if not Assigned(FormInstructions) then
+    FormInstructions := TFormInstructions.Create(Self);
+
+  PlaceFormRelative(FormMain, FormInstructions, psBelowThenAboveThenCenter, 8);
+  FormInstructions.Show;
+
+
 end;
 
 procedure TFormMain.TimerFaderTimer(Sender: TObject);

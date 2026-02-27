@@ -1,0 +1,53 @@
+object FormInstructions: TFormInstructions
+  Left = 478
+  Height = 217
+  Top = 37
+  Width = 327
+  Caption = 'FormInstructions'
+  ClientHeight = 217
+  ClientWidth = 327
+  DesignTimePPI = 144
+  LCLVersion = '4.4.0.0'
+  OnCreate = FormCreate
+  object LabelActionTitle: TLabel
+    Left = 8
+    Height = 25
+    Top = 8
+    Width = 56
+    Caption = 'Action'
+    Font.Style = [fsBold]
+    ParentFont = False
+  end
+  object LabelInstructionTitle: TLabel
+    Left = 128
+    Height = 25
+    Top = 8
+    Width = 93
+    Caption = 'Instruction'
+    Font.Style = [fsBold]
+    ParentFont = False
+  end
+  object LabelActions: TLabel
+    Left = 8
+    Height = 125
+    Top = 32
+    Width = 107
+    Caption = 'move clock'#13#10'fade in/out'#13#10'popup menu'#13#10'hide for 2 sec'#13#10'turn off clock'
+  end
+  object LabelInstructions: TLabel
+    Left = 128
+    Height = 125
+    Top = 32
+    Width = 192
+    Caption = 'Left Mouse Down Drag'#13#10'Mouse Wheel Up/Down'#13#10'Right Mouse Click'#13#10'Shift+Left Mouse Click'#13#10'Left Mouse Double Click'
+  end
+  object ButtonClose: TButton
+    Left = 48
+    Height = 38
+    Top = 168
+    Width = 236
+    Caption = 'Close Instruction Dialog'
+    TabOrder = 0
+    OnClick = ButtonCloseClick
+  end
+end

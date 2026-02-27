@@ -101,6 +101,9 @@ var
   i  : integer;
 begin
   inherited;
+
+  TForm(Sender).Caption := 'Options';
+
   // only enable first option (clock mode)
   // other options are experimental
   for i := 0 to RadioGroupRunMode.ControlCount - 1 do
