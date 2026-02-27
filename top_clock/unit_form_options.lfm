@@ -3,7 +3,7 @@ object FormOptions: TFormOptions
   Height = 260
   Top = 37
   Width = 397
-  Caption = 'Top Clock Options'
+  Caption = 'FormOptions'
   ClientHeight = 260
   ClientWidth = 397
   DesignTimePPI = 144
@@ -35,7 +35,7 @@ object FormOptions: TFormOptions
     object CheckBoxShowSeconds: TCheckBox
       Left = 6
       Height = 38
-      Top = 0
+      Top = 76
       Width = 167
       Caption = 'Show Seconds'
       TabOrder = 0

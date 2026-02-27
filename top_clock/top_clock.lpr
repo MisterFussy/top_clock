@@ -10,7 +10,8 @@ uses
   athreads,
   {$ENDIF}
   Interfaces, // this includes the LCL widgetset
-  Forms, unit_form_main, unit_options, unit_form_options;
+  Forms, unit_form_main, unit_options, unit_form_options, unit_form_about,
+  unit_form_placer, unit_form_instructions;
 
 {$R *.res}
 
@@ -23,6 +24,8 @@ begin
   Application.Initialize;
   Application.CreateForm(TFormMain, FormMain);
   Application.CreateForm(TFormOptions, FormOptions);
+  Application.CreateForm(TFormAbout, FormAbout);
+  Application.CreateForm(TFormInstructions, FormInstructions);
   Application.Run;
 end.
 

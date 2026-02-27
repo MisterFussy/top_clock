@@ -8,7 +8,7 @@ Its minimal footprint keeps the current time visible at all times without gettin
 ## ⭐ Features
 
 - Real‑time digital clock display  
-- Minimal footprint (variable size)
+- Minimal footprint (variable size - can be big)
 - Always on top
 - Moveable to anywhere on screen
 - Variable transparency
@@ -30,9 +30,9 @@ The clock uses:
   - Resizing the clock
   - Fading the clock in and out
   - Hiding the clock, and making it reappear
-  - Displaying a help dialog
+  - Displaying dialogs (instructions, options, about)
   - Closing the clock
-- Properties to handle:
+- Main form's properties to handle:
   - Removing border icons (BorderIcons := [])
   - Removing captions (BorderStyle := bsNone)
   - Keeping form on top (FormStyle := fsSystemStayOnTop)
@@ -49,16 +49,24 @@ The clock uses:
   run.bat                – DOS batch file that runs text to .png translation
   txt2png.py             – Python text to .png translator
 /top_clock
-  top_clock.exe          – Courtesy, precompiled top clock
-  top_clock.ico          – Icon file
-  top_clock.lpi          – Lazarus Project Information file
-  top_clock.lpr          – top clock program entry point
-  unit_form_main.lfm     – Main form's Lazarus Form Metadata file
-  unit_form_main.pas     – Main form's Pascal source
-/.gitignore              – The .gitignore file
-/LICENSE                 – MIT license file
-/readme.md               – This file
-/top_clock.png           – Screen capture of top_clock running
+  top_clock.exe              – Courtesy, precompiled top clock
+  top_clock.ico              – Icon file
+  top_clock.lpi              – Lazarus Project Information file
+  top_clock.lpr              – top clock program entry point
+  unit_form_about.lfm        – About dialog box's Lazarus Form Metadata file
+  unit_form_about.pas        – About dialog box's Pascal source
+  unit_form_instructions.lfm – Instruction dialog box's Lazarus Form Metadata file
+  unit_form_instructions.pas – Instruction dialog box's Pascal source
+  unit_form_main.lfm         – Main form's Lazarus Form Metadata file
+  unit_form_main.pas         – Main form's Pascal source
+  unit_form_options.lfm      – Options dialog box's Lazarus Form Metadata file
+  unit_form_options.pas      – Options dialog box's Pascal source
+  unit_form_placer.pas       – Form placer (non-GUI) Pascal source
+  unit_options.pas           – Options common variables (non-GUI) Pascal source
+/.gitignore                  – The .gitignore file
+/LICENSE                     – MIT license file
+/readme.md                   – This file
+/top_clock.png               – Screen capture of top_clock running
 ```
 
 ---
@@ -103,7 +111,6 @@ Once the clock appears, initialy in the upper left hand corner of the screen, yo
 ---
 ## 🧪 Future Enhancements
 
-- Custom colors
 - Alarm system  
 - Hourly chime  
 
