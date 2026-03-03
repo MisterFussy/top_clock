@@ -13,6 +13,7 @@ Its minimal footprint keeps the current time visible at all times without gettin
 - Moveable to anywhere on screen
 - Variable transparency
 - Temporary hiding if obscuring a window or control
+- Stopwatch mode
 
 ---
 ## 📸 Screenshot  
@@ -32,10 +33,12 @@ The clock uses:
   - Hiding the clock, and making it reappear
   - Displaying dialogs (instructions, options, about)
   - Closing the clock
+  - Moving and enabling controls (start, pause, etc)
 - Main form's properties to handle:
   - Removing border icons (BorderIcons := [])
   - Removing captions (BorderStyle := bsNone)
   - Keeping form on top (FormStyle := fsSystemStayOnTop)
+  - Painting the client area
 
 ---
 ## 📂 Project Structure
@@ -107,6 +110,14 @@ Once the clock appears, initialy in the upper left hand corner of the screen, yo
    - Hold Shift and click left mouse button
 6. Close
    - Double click left on the clock to quit
+7. Switch to an operate the stopwatch
+   - Right click to bring up a menu
+   - Select Options ...
+   - Select Stopwatch for Run Mode
+   - To start the stopwatch, click on the start button
+   - To pause the stopwatch, click on the pause button
+   - To continue timing when paused, click on the start button
+   - To reset the time, lick on the reset button
 
 ---
 ## 🧪 Future Enhancements

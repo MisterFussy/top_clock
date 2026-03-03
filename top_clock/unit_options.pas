@@ -14,8 +14,9 @@ uses
   Classes, SysUtils;
 
 type
-  TTimeFormat = (tf12Hour, tf24Hour);
-  TRunMode    = (rmClock, rmTimer, rmStopwatch);
+  TTimeFormat     = (tf12Hour, tf24Hour);
+  TRunMode        = (rmClock, rmTimer, rmStopwatch);
+  TStopWatchState = (swIdle, swTiming, swPaused);
 
   TAppOptions = record
     TimeFormat   : TTimeFormat;
@@ -66,14 +67,10 @@ begin
     AppOptions.RunMode      := TRunMode(ini.ReadInteger('Options','RunMode',Ord(DefaultAppOptions.RunMode)));
     AppOptions.ShowSeconds  := ini.ReadBool('Options','ShowSeconds',DefaultAppOptions.ShowSeconds);
     AppOptions.TimerSeconds := ini.ReadInteger('Options','TimerSeconds',DefaultAppOptions.TimerSeconds);
-
-(* TODO: Figure out why Width and Height keep shrinking in size
-
-    Form.Left   := ini.ReadInteger('Window','Left',DefaultAppOptions.Left);
-    Form.Top    := ini.ReadInteger('Window','Top',DefaultAppOptions.Top);
-    Form.Width  := ini.ReadInteger('Window','Width',DefaultAppOptions.Width);
-    Form.Height := ini.ReadInteger('Window','Height',DefaultAppOptions.Height);
-*)
+    AppOptions.Left         := ini.ReadInteger('Window','Left',DefaultAppOptions.Left);
+    AppOptions.Top          := ini.ReadInteger('Window','Top',DefaultAppOptions.Top);
+    AppOptions.Width        := ini.ReadInteger('Window','Width',DefaultAppOptions.Width);
+    AppOptions.Height       := ini.ReadInteger('Window','Height',DefaultAppOptions.Height);
   finally
     ini.Free;
   end;
@@ -91,7 +88,6 @@ begin
     ini.WriteInteger('Options','RunMode',Ord(AppOptions.RunMode));
     ini.WriteBool   ('Options','ShowSeconds',AppOptions.ShowSeconds);
     ini.WriteInteger('Options','TimerSeconds',AppOptions.TimerSeconds);
-
     ini.WriteInteger('Window','Left',Form.Left);
     ini.WriteInteger('Window','Top',Form.Top);
     ini.WriteInteger('Window','Width',Form.Width);

@@ -61,7 +61,7 @@ object FormOptions: TFormOptions
     Items.Strings = (
       'Clock'
       'Timer'
-      'Stop Watch'
+      'Stopwatch'
     )
     TabOrder = 1
     OnClick = RadioGroupRunModeClick

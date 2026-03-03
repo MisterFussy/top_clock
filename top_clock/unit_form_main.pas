@@ -10,16 +10,20 @@ unit unit_form_main;
 interface
 
 uses
-  unit_options, unit_form_placer, unit_form_options,
-  unit_form_instructions, unit_form_about,
-  StdCtrls, ExtCtrls, LCLIntf, LCLType, Windows,
-  Classes, SysUtils, Forms, Controls, Graphics, Dialogs, Menus, Types;
+  unit_options, unit_form_placer, unit_form_options, unit_form_instructions,
+  unit_form_about, StdCtrls, ExtCtrls, LCLIntf, LCLType, Windows, Classes,
+  SysUtils, Forms, Controls, Graphics, Dialogs, Menus, EditBtn, ButtonPanel,
+  Buttons, Types;
 
 type
 
   { TFormMain }
 
   TFormMain = class(TForm)
+    ImagePause: TImage;
+    ImagePlay: TImage;
+    ImageStop: TImage;
+    ImageReset: TImage;
     MenuItemOptions: TMenuItem;
     MenuItemFader: TMenuItem;
     MenuItemClose: TMenuItem;
@@ -39,6 +43,10 @@ type
     procedure FormDblClick(Sender: TObject);
     procedure FormMouseDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
+    procedure FormShow(Sender: TObject);
+    procedure ImagePauseClick(Sender: TObject);
+    procedure ImagePlayClick(Sender: TObject);
+    procedure ImageResetClick(Sender: TObject);
     procedure MenuItemOptionsClick(Sender: TObject);
     procedure MenuItemAboutClick(Sender: TObject);
     procedure MenuItemCloseClick(Sender: TObject);
@@ -58,8 +66,10 @@ var
   FormMain: TFormMain;
 
 var
-  StopwatchStart : TDateTime;
-  TimerRemaining : Integer;
+  StopwatchStart : TDateTime;       // time stopwatch starts
+  StopwatchPause : TDateTime;       // time startwatch paused
+  StopWatchState : TStopWatchState; // state of st
+  TimerRemaining : Integer;         // seconds left of timer
 
 implementation
 
@@ -74,7 +84,7 @@ var
 begin
   inherited;
   // round corners of form
-  // see TFormMain.WMNCHitTest() for use of same equation
+  // see TFormMain.WMNCHitTest() for use of same equation for Radius
   Radius := Round((Width + Height) / 8);
   Region := CreateRoundRectRgn(0, 0, Width, Height, Radius, Radius);
   SetWindowRgn(Handle, Region, True);
@@ -93,26 +103,28 @@ begin
   AppOptions            := DefaultAppOptions; // load defaults for all
   LoadOptions(Self);                          // .ini file over-rides
 
-  StopwatchStart        := Now;
+  StopwatchStart        := now;
+  StopWatchState        := swIdle;
+
   TimerRemaining        := AppOptions.TimerSeconds;
 
-  TimerSecond.Interval  := 1000; // 1 second
+  TimerSecond.Interval  := 1000;              // 1 second clock interval
   TimerSecond.Enabled   := True;
 
-  TimerHide.Interval    := 2000; // 2 seconds, hide window time
+  TimerHide.Interval    := 2000;              // 2 seconds, hide window time
   TimerHide.Enabled     := False;
 
-  BorderIcons           := [];     // disable all borders
-  BorderStyle           := bsNone; // disable caption bar and borders
+  BorderIcons           := [];                // disable all borders
+  BorderStyle           := bsNone;            // disable caption bar and borders
   FormStyle             := fsSystemStayOnTop;
   Color                 := AppOptions.DisplayColor;
 
-  // make form partially transparent
-  AlphaBlend            := True;
+  // Form position and size set in TFormMain.FormShow()
+
+  AlphaBlend            := True;              // make form partially transparent
   AlphaBlendValue       := 130;
 
-  // limit the minimum size
-  Constraints.MinWidth  := 60;
+  Constraints.MinWidth  := 60;                // limit the minimum size
   Constraints.MinHeight := 20;
 
 end;
@@ -132,20 +144,57 @@ end;
 
 
 // Using a TLabel is too difficult to size & center properly, hence
-// the form is painted below - time added with Canvas.TextOut()
+// the form is painted below - time is added with Canvas.TextOut() in the
+// Target area:
+//
+// RunMode = rmClock                    / RunMode = rmStopwatch or rmTimer
+//                                      /
+//         ClientWidth                  /           ClientWidth
+//         __________________________   /           ___________________________
+// Client |                          |  /   Client |                           |
+// Height |          TargetWidth     |  /   Height |           TargetWidth     |
+//        |          ___________     |  /          |           ___________     |
+//        |  Target |           |    |  /          |   Target |           |    |
+//        |  Height | Target    |    |  /          |   Height | Target    |    |
+//        |         | Area      |    |  /          |          | Area      |    |
+//        |         |           |    |  /          |          |           |    |
+//        |         |           |    |  /          |          |___________|    |
+//        |         |           |    |  /          |  Control |           |    |
+//        |         |___________|    |  /          |  Height  |           |    |
+//        |                          |  /          |          |           |    |
+//        |                          |  /          |          |___________|    |
+//        |__________________________|  /          |___________________________|
+//
+
 procedure TFormMain.FormPaint(Sender: TObject);
+const
+  SCALE_FACTOR   : double = 0.6;
 var
-  ScreenText   : string;
-  TargetWidth  ,
-  TargetHeight : Integer;
-  FontSize     : Integer;
-  Margin       : Integer;
+  ScreenText     : string;
+  TargetWidth    ,
+  TargetHeight   : Integer;
+  ImageWidth     ,
+  ImageHeight    : Integer;
+  FontSize       : Integer;
+  Margin         : Integer;
+  ImageTop       : Integer;
 begin
+  inherited;
   Color              := AppOptions.DisplayColor;
   ScreenText         := FormatTimeString; // current time formatted
   Margin             := 1;
-  TargetWidth        := ClientWidth  - Margin;
-  TargetHeight       := ClientHeight - Margin;
+  case AppOptions.RunMode of
+    rmClock :
+      begin
+        TargetWidth  := ClientWidth  - Margin;
+        TargetHeight := ClientHeight - Margin;
+      end;
+    rmStopwatch, rmTimer :
+      begin
+        TargetWidth    :=       ClientWidth                  - Margin;
+        TargetHeight   := Round(ClientHeight * SCALE_FACTOR) - Margin;
+      end;
+  end;
   FontSize           := 8;                 // starting font size
   Canvas.Font.Color  := AppOptions.TextColor;
 
@@ -165,12 +214,90 @@ begin
     Canvas.Font.Size := FontSize;
   end;
 
-  // draw centered vertically and horizontally
-  Canvas.TextOut(
-    (ClientWidth  - Canvas.TextWidth (ScreenText)) div 2,
-    (ClientHeight - Canvas.TextHeight(ScreenText)) div 2,
-    ScreenText
-  );
+  // draw centered vertically and horizontally in target area
+  case AppOptions.RunMode of
+    rmClock :
+      Canvas.TextOut(
+        (ClientWidth  - Canvas.TextWidth (ScreenText)) div 2,
+        (ClientHeight - Canvas.TextHeight(ScreenText)) div 2,
+        ScreenText
+      );
+    rmStopwatch, rmTimer :
+      Canvas.TextOut(
+        (ClientWidth                        - Canvas.TextWidth (ScreenText)) div 2,
+        (Round(ClientHeight * SCALE_FACTOR) - Canvas.TextHeight(ScreenText)) div 2,
+        ScreenText
+      );
+  end;
+
+  // Start painting the controls
+
+  ImageHeight       := ClientHeight - TargetHeight; // images fills up bottum of Client
+  ImageWidth        := ImageHeight;                 // keep image square
+  ImageTop          := TargetHeight - Margin * 2;   // place controls under the Target area
+
+  ImageReset.Height := ImageHeight;
+  ImagePause.Height := ImageHeight;
+  ImagePlay.Height  := ImageHeight;
+  ImageStop.Height  := ImageHeight;
+  ImageReset.Width  := ImageWidth;
+  ImagePause.Width  := ImageWidth;
+  ImagePlay.Width   := ImageWidth;
+  ImageStop.Width   := ImageWidth;
+
+  ImageReset.Top    := ImageTop;
+  ImagePause.Top    := ImageTop;
+  ImagePlay.Top     := ImageTop;
+  ImageStop.Top     := ImageTop;
+
+  case AppOptions.RunMode of
+    rmClock     :
+      begin
+        ImagePause.Visible := False;
+        ImagePlay.Visible  := False;
+        ImageStop.Visible  := False;
+        ImageReset.Visible := False;
+      end;
+    rmStopwatch :
+      begin
+        case StopWatchState of
+          swIdle   :
+            begin
+              ImagePause.Visible := False;
+              ImagePlay.Visible  := True;
+              ImageStop.Visible  := False;
+              ImageReset.Visible := True;
+              ImageReset.Left    := Round(Width / 2) - ImageWidth * 1;
+              ImagePlay.Left     := Round(Width / 2);
+            end;
+          swTiming :
+            begin
+              ImagePause.Visible := True;
+              ImagePlay.Visible  := False;
+              ImageStop.Visible  := False;
+              ImageReset.Visible := True;
+              ImageReset.Left    := Round(Width / 2) - ImageWidth * 1;
+              ImagePause.Left    := Round(Width / 2);
+            end;
+          swPaused :
+            begin
+              ImagePause.Visible := False;
+              ImagePlay.Visible  := True;
+              ImageStop.Visible  := False;
+              ImageReset.Visible := True;
+              ImageReset.Left    := Round(Width / 2) - ImageWidth * 1;
+              ImagePlay.Left     := Round(Width / 2);
+            end;
+          end;
+      end;
+    rmTimer     :
+      begin
+        ImagePause.Visible := False;
+        ImagePlay.Visible  := True;
+        ImageStop.Visible  := False;
+        ImageReset.Visible := False;
+      end;
+  end; // case AppOptions.RunMode
 end;
 
 
@@ -198,6 +325,41 @@ begin
           SendMessage(Handle, WM_NCLBUTTONDOWN, HTCAPTION, 0);
         end;
     end;
+end;
+
+
+procedure TFormMain.FormShow(Sender: TObject);
+begin
+  // Set Form position and size here, because postioning and DPI scaling
+  // may may occur
+  Left   := AppOptions.Left;
+  Top    := AppOptions.Top;
+  Height := AppOptions.Height;
+  Width  := AppOptions.Width;
+end;
+
+
+procedure TFormMain.ImagePauseClick(Sender: TObject);
+begin
+  StopwatchPause         := now - StopwatchStart;
+  StopWatchState         := swPaused;
+end;
+
+
+procedure TFormMain.ImagePlayClick(Sender: TObject);
+begin
+  if StopWatchState <> swPaused then
+    StopwatchStart       := now;
+  StopWatchState         := swTiming;
+end;
+
+
+procedure TFormMain.ImageResetClick(Sender: TObject);
+begin
+  StopwatchStart := now;
+  StopwatchPause := 0;
+  if StopwatchState = swPaused then
+    StopwatchState := swIdle;
 end;
 
 
@@ -229,23 +391,13 @@ end;
 
 procedure TFormMain.MenuItemInstructionClick(Sender: TObject);
 begin
-//  MessageDlg('Instructions:' + LineEnding + LineEnding +
-//             'Left Mouse Down Drag    '#9' - move clock' + LineEnding +
-//             'Left Mouse Double Click '#9' - turn off clock' + LineEnding +
-//             'Mouse Wheel Up/Down     '#9' - fade in/out' + LineEnding +
-//             'Right Mouse Click       '#9' - popup menu' + LineEnding +
-//             'Shift+Left Mouse Click  '#9' - hide for 2 sec' + LineEnding +
-//             LineEnding,
-//             mtInformation, [mbOK], 0);
-
   if not Assigned(FormInstructions) then
     FormInstructions := TFormInstructions.Create(Self);
 
   PlaceFormRelative(FormMain, FormInstructions, psBelowThenAboveThenCenter, 8);
   FormInstructions.Show;
-
-
 end;
+
 
 procedure TFormMain.TimerFaderTimer(Sender: TObject);
 const ALPHA_DELTA : integer = 0; // set to 10 and see the app fade in and out
@@ -279,6 +431,7 @@ begin
 
   TimerHide.Enabled := False;
 end;
+
 
 procedure TFormMain.TimerSecondTimer(Sender: TObject);
 begin
@@ -317,10 +470,14 @@ begin
   case AppOptions.RunMode of
 
     rmClock:
-      date_time := Now;
+      date_time := now;
 
     rmStopwatch:
-      date_time := Now - StopwatchStart;
+      case StopWatchState of
+        swIdle   : date_time := 0;
+        swTiming : date_time := now - StopwatchStart;
+        swPaused : date_time := StopwatchPause;
+      end;
 
     rmTimer:
       begin
@@ -342,10 +499,17 @@ begin
         Result := FormatDateTime('hh:mm:ss', date_time)
       else
         Result := FormatDateTime('hh:mm', date_time);
+  end;
 
+  case AppOptions.RunMode of
+    rmClock:
+      null;
+    rmStopwatch:
+      Result := FormatDateTime('hh:mm:ss.zzz', date_time);
+    rmTimer:
+      null;
   end;
 
 end;
 
 end.
-
