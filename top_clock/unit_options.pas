@@ -17,6 +17,7 @@ type
   TTimeFormat     = (tf12Hour, tf24Hour);
   TRunMode        = (rmClock, rmTimer, rmStopwatch);
   TStopWatchState = (swIdle, swTiming, swPaused);
+  TTimerState     = (tIdle, tCounting);
 
   TAppOptions = record
     TimeFormat   : TTimeFormat;

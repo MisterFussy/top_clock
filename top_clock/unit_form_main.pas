@@ -24,6 +24,9 @@ type
     ImagePlay: TImage;
     ImageStop: TImage;
     ImageReset: TImage;
+    MenuItemStopwatch: TMenuItem;
+    MenuItemTimer: TMenuItem;
+    MenuItemClock: TMenuItem;
     MenuItemOptions: TMenuItem;
     MenuItemFader: TMenuItem;
     MenuItemClose: TMenuItem;
@@ -31,6 +34,7 @@ type
     MenuItemAbout: TMenuItem;
     PopupMenu1: TPopupMenu;
     Separator1: TMenuItem;
+    Separator2: TMenuItem;
     TimerHide: TTimer;
     TimerFader: TTimer;
     TimerSecond: TTimer;
@@ -47,10 +51,14 @@ type
     procedure ImagePauseClick(Sender: TObject);
     procedure ImagePlayClick(Sender: TObject);
     procedure ImageResetClick(Sender: TObject);
+    procedure ImageStopClick(Sender: TObject);
+    procedure MenuItemClockClick(Sender: TObject);
     procedure MenuItemOptionsClick(Sender: TObject);
     procedure MenuItemAboutClick(Sender: TObject);
     procedure MenuItemCloseClick(Sender: TObject);
     procedure MenuItemInstructionClick(Sender: TObject);
+    procedure MenuItemStopwatchClick(Sender: TObject);
+    procedure MenuItemTimerClick(Sender: TObject);
     procedure TimerFaderTimer(Sender: TObject);
     procedure TimerHideTimer(Sender: TObject);
     procedure TimerSecondTimer(Sender: TObject);
@@ -68,8 +76,9 @@ var
 var
   StopwatchStart : TDateTime;       // time stopwatch starts
   StopwatchPause : TDateTime;       // time startwatch paused
-  StopWatchState : TStopWatchState; // state of st
+  StopWatchState : TStopWatchState; // state of stopwatch
   TimerRemaining : Integer;         // seconds left of timer
+  TimerState     : TTimerState;     // state of timer
 
 implementation
 
@@ -106,6 +115,7 @@ begin
   StopwatchStart        := now;
   StopWatchState        := swIdle;
 
+  TimerState            := tIdle;
   TimerRemaining        := AppOptions.TimerSeconds;
 
   TimerSecond.Interval  := 1000;              // 1 second clock interval
@@ -116,7 +126,7 @@ begin
 
   BorderIcons           := [];                // disable all borders
   BorderStyle           := bsNone;            // disable caption bar and borders
-  FormStyle             := fsSystemStayOnTop;
+  FormStyle             := fsSystemStayOnTop; // stay on top
   Color                 := AppOptions.DisplayColor;
 
   // Form position and size set in TFormMain.FormShow()
@@ -132,16 +142,61 @@ end;
 
 procedure TFormMain.FormMouseWheel(Sender: TObject; Shift: TShiftState;
   WheelDelta: Integer; MousePos: TPoint; var Handled: Boolean);
-begin
-  // Mouse wheel -> adjust AlphaBlendValue
+
+  function UpdateTimeLeft(TimeLeft: Integer; MousePosX: Integer): Integer;
+  var
+    H, M, S : Integer;
+    Delta   : Integer;
+  begin
+    if WheelDelta > 0 then // determine direction
+      Delta := 1
+    else
+      Delta := -1;
+
+    H := TimeLeft div SecsPerHour; // slice TimeLeft into H:M:S
+    M := (TimeLeft mod SecsPerHour) div SecsPerMin;
+    S := TimeLeft mod SecsPerMin;
+
+    if MousePosX < Width div 3 then            // 1st third of form horizontally
+      begin
+        H := (H + Delta) mod 25; // hours
+        if H < 0 then H := 24;
+      end
+    else if MousePosX < (Width * 2) div 3 then // 2nd third of form horizontally
+      begin
+        M := (M + Delta) mod 60; // minutes
+        if M < 0 then M := 59;
+      end
+    else                                             // 3rd third of form horizontally
+      begin
+        S := (S + Delta) mod 60; // seconds
+        if S < 0 then S := 59;
+      end;
+
+    Result := (H * 3600) + (M * 60) + S; // put Mr. Dumpty back together
+  end;
+
+  begin
+
+  // Mouse wheel -> adjust AlphaBlendValue (transpareny) or adjust timer
+  if not(ssShift in Shift) then
+    begin
   if WheelDelta > 0 then
     AlphaBlendValue := Min(255, AlphaBlendValue + 10)
   else
     AlphaBlendValue := Max(20, AlphaBlendValue - 10);
+    end
+  else
+   begin
+     if TimerState <> tCounting then
+       begin
+         TimerRemaining          := UpdateTimeLeft(TimerRemaining, MousePos.X);
+         AppOptions.TimerSeconds := TimerRemaining; // make start time persistend
+       end;
+   end;
 
   Handled := True;
 end;
-
 
 // Using a TLabel is too difficult to size & center properly, hence
 // the form is painted below - time is added with Canvas.TextOut() in the
@@ -181,7 +236,8 @@ var
 begin
   inherited;
   Color              := AppOptions.DisplayColor;
-  ScreenText         := FormatTimeString; // current time formatted
+  Canvas.Font.Color  := AppOptions.TextColor;
+  ScreenText         := FormatTimeString; // current, stopwatch, or timer time formatted
   Margin             := 1;
   case AppOptions.RunMode of
     rmClock :
@@ -195,8 +251,8 @@ begin
         TargetHeight   := Round(ClientHeight * SCALE_FACTOR) - Margin;
       end;
   end;
-  FontSize           := 8;                 // starting font size
   Canvas.Font.Color  := AppOptions.TextColor;
+  FontSize           := 8;                 // starting font size
 
   // increase font size until text is almost as wide as the form
   Canvas.Font.Size   := FontSize;
@@ -207,7 +263,7 @@ begin
     Canvas.Font.Size := FontSize;
   end;
 
-  // if we overshot, step back one
+  // if overshot, step back one
   if Canvas.TextWidth(ScreenText) > TargetWidth then
   begin
     Dec(FontSize);
@@ -230,7 +286,7 @@ begin
       );
   end;
 
-  // Start painting the controls
+  // paint controls
 
   ImageHeight       := ClientHeight - TargetHeight; // images fills up bottum of Client
   ImageWidth        := ImageHeight;                 // keep image square
@@ -250,13 +306,22 @@ begin
   ImagePlay.Top     := ImageTop;
   ImageStop.Top     := ImageTop;
 
+// Do not attempt to refactor by setting all controls to invisible,
+// and then set the ones of interest to visible. Some infinite loop
+// is entered if you uncomment the below - weird
+//
+//  ImageReset.Visible := False;
+//  ImagePause.Visible := False;
+//  ImagePlay.Visible  := False;
+//  ImageStop.Visible  := False;
+
   case AppOptions.RunMode of
     rmClock     :
       begin
+        ImageReset.Visible := False;
         ImagePause.Visible := False;
         ImagePlay.Visible  := False;
         ImageStop.Visible  := False;
-        ImageReset.Visible := False;
       end;
     rmStopwatch :
       begin
@@ -264,27 +329,27 @@ begin
           swIdle   :
             begin
               ImagePause.Visible := False;
-              ImagePlay.Visible  := True;
               ImageStop.Visible  := False;
               ImageReset.Visible := True;
+              ImagePlay.Visible  := True;
               ImageReset.Left    := Round(Width / 2) - ImageWidth * 1;
               ImagePlay.Left     := Round(Width / 2);
             end;
           swTiming :
             begin
-              ImagePause.Visible := True;
               ImagePlay.Visible  := False;
               ImageStop.Visible  := False;
               ImageReset.Visible := True;
+              ImagePause.Visible := True;
               ImageReset.Left    := Round(Width / 2) - ImageWidth * 1;
               ImagePause.Left    := Round(Width / 2);
             end;
           swPaused :
             begin
               ImagePause.Visible := False;
-              ImagePlay.Visible  := True;
               ImageStop.Visible  := False;
               ImageReset.Visible := True;
+              ImagePlay.Visible  := True;
               ImageReset.Left    := Round(Width / 2) - ImageWidth * 1;
               ImagePlay.Left     := Round(Width / 2);
             end;
@@ -292,10 +357,27 @@ begin
       end;
     rmTimer     :
       begin
-        ImagePause.Visible := False;
-        ImagePlay.Visible  := True;
-        ImageStop.Visible  := False;
-        ImageReset.Visible := False;
+        case TimerState of
+          tIdle        :
+            begin
+              ImagePause.Visible    := False;
+              ImageStop.Visible     := False;
+              ImageReset.Visible    := True;
+              ImagePlay.Visible     := True;
+              ImageReset.Left       := Round(ClientWidth / 2) - ImageWidth * 1;
+              ImagePlay.Left        := Round(ClientWidth / 2);
+
+            end;
+          tCounting    :
+            begin
+              ImageReset.Visible    := False;
+              ImagePlay.Visible     := False;
+              ImagePause.Visible    := True;
+              ImageStop.Visible     := True;
+              ImagePause.Left       := Round(ClientWidth / 2) - ImageWidth * 1;
+              ImageStop.Left        := Round(ClientWidth / 2);
+            end;
+          end;
       end;
   end; // case AppOptions.RunMode
 end;
@@ -315,9 +397,12 @@ begin
     begin
       if ssShift in Shift then
         begin
-          // hide form, start timer
-          Visible           := False;
-          TimerHide.Enabled := True;
+          Visible           := False; // hide form
+          TimerHide.Enabled := True;  // start timer
+          AppOptions.Left   := Left;  // preserve window geomtery
+          AppOptions.Top    := Top;   // - see FormShow method for retrieval of preserved windoe geometry
+          AppOptions.Height := Height;
+          AppOptions.Width  := Width;
         end
       else
         begin
@@ -330,8 +415,9 @@ end;
 
 procedure TFormMain.FormShow(Sender: TObject);
 begin
-  // Set Form position and size here, because postioning and DPI scaling
-  // may may occur
+  // Set initial Form position and size here, because postioning
+  // and DPI scaling may occur after Form.OnCreate()
+  // This method is also called from self.Show() - See TFormMain.TimerSecondTimer
   Left   := AppOptions.Left;
   Top    := AppOptions.Top;
   Height := AppOptions.Height;
@@ -341,25 +427,88 @@ end;
 
 procedure TFormMain.ImagePauseClick(Sender: TObject);
 begin
-  StopwatchPause         := now - StopwatchStart;
-  StopWatchState         := swPaused;
+  case AppOptions.RunMode of
+    rmClock :
+      begin
+        null;
+      end;
+    rmStopwatch :
+      begin
+        StopwatchPause := now - StopwatchStart; // note how long stopwatch is running (what if pause hit twice - so sad too bad?)
+        StopWatchState := swPaused;
+      end;
+    rmTimer :
+      begin
+        TimerState     := tIdle;
+      end;
+  end;
 end;
 
 
 procedure TFormMain.ImagePlayClick(Sender: TObject);
 begin
-  if StopWatchState <> swPaused then
-    StopwatchStart       := now;
-  StopWatchState         := swTiming;
+  case AppOptions.RunMode of
+    rmClock :
+      begin
+        null;
+      end;
+    rmStopwatch :
+      begin
+        if StopWatchState <> swPaused then
+          StopwatchStart := now;
+        StopWatchState   := swTiming;
+      end;
+    rmTimer :
+      begin
+        TimerState              := tCounting;
+      end;
+  end;
 end;
 
 
 procedure TFormMain.ImageResetClick(Sender: TObject);
 begin
-  StopwatchStart := now;
-  StopwatchPause := 0;
-  if StopwatchState = swPaused then
-    StopwatchState := swIdle;
+  case AppOptions.RunMode of
+    rmClock :
+      begin
+        null;
+      end;
+    rmStopwatch :
+      begin
+        StopwatchStart := now;
+        StopwatchPause := 0;
+        if StopwatchState = swPaused then
+          StopwatchState := swIdle;
+      end;
+    rmTimer :
+      begin
+        TimerRemaining   := AppOptions.TimerSeconds;
+      end;
+  end;
+end;
+
+procedure TFormMain.ImageStopClick(Sender: TObject);
+begin
+   case AppOptions.RunMode of
+   rmClock :
+     begin
+       null;
+     end;
+   rmStopwatch :
+     begin
+       null;
+     end;
+   rmTimer :
+     begin
+       TimerState       := tIdle;
+     end;
+ end;
+end;
+
+
+procedure TFormMain.MenuItemClockClick(Sender: TObject);
+begin
+  AppOptions.RunMode := rmClock;
 end;
 
 
@@ -399,6 +548,17 @@ begin
 end;
 
 
+procedure TFormMain.MenuItemStopwatchClick(Sender: TObject);
+begin
+  AppOptions.RunMode := rmStopwatch;
+end;
+
+procedure TFormMain.MenuItemTimerClick(Sender: TObject);
+begin
+  AppOptions.RunMode := rmTimer;
+end;
+
+
 procedure TFormMain.TimerFaderTimer(Sender: TObject);
 const ALPHA_DELTA : integer = 0; // set to 10 and see the app fade in and out
 begin
@@ -435,7 +595,17 @@ end;
 
 procedure TFormMain.TimerSecondTimer(Sender: TObject);
 begin
-  Invalidate; // calls FormPaint() every second
+ Invalidate;                    // call FormPaint() every second
+ if TimerState = tCounting then // if timer coutning decrement Timer every second till zero
+   begin
+   if TimerRemaining <> 0 then
+     Dec(TimerRemaining);
+   if TimerRemaining = 0 then   // at zero stop go to state tIdle, show message
+     begin
+       TimerState := tIdle;
+       ShowMessage('Timer expired');
+     end;
+   end;
 end;
 
 
@@ -466,6 +636,8 @@ end;
 function TFormMain.FormatTimeString: string;
 var
   date_time : TDateTime;
+  date_time_format : String;
+  H, M, S          : Integer;
 begin
   case AppOptions.RunMode of
 
@@ -481,35 +653,23 @@ begin
 
     rmTimer:
       begin
-        Dec(TimerRemaining);
-        if TimerRemaining < 0 then TimerRemaining := 0;
-        date_time := EncodeTime(0,0,TimerRemaining,0);
+        date_time := TimerRemaining / SecsPerDay;
       end;
-  end;
-
-  case AppOptions.TimeFormat of
-    tf12Hour:
-      if AppOptions.ShowSeconds then
-        Result := FormatDateTime('hh:mm:ss am/pm', date_time)
-      else
-        Result := FormatDateTime('hh:mm am/pm', date_time);
-
-    tf24Hour:
-      if AppOptions.ShowSeconds then
-        Result := FormatDateTime('hh:mm:ss', date_time)
-      else
-        Result := FormatDateTime('hh:mm', date_time);
   end;
 
   case AppOptions.RunMode of
     rmClock:
-      null;
+      begin
+        date_time_format   := 'hh:mm';
+        if AppOptions.ShowSeconds           then date_time_format := date_time_format + ':ss';
+        if AppOptions.TimeFormat = tf12Hour then date_time_format := date_time_format + ' am/pm';
+      end;
     rmStopwatch:
-      Result := FormatDateTime('hh:mm:ss.zzz', date_time);
+      date_time_format     := 'hh:mm:ss.zzz';
     rmTimer:
-      null;
+      date_time_format     := 'hh:mm:ss';
   end;
-
+  Result                   := FormatDateTime(date_time_format, date_time);
 end;
 
 end.

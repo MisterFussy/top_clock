@@ -13,6 +13,7 @@ Its minimal footprint keeps the current time visible at all times without gettin
 - Moveable to anywhere on screen
 - Variable transparency
 - Temporary hiding if obscuring a window or control
+- Timer mode
 - Stopwatch mode
 
 ---
@@ -110,14 +111,19 @@ Once the clock appears, initialy in the upper left hand corner of the screen, yo
    - Hold Shift and click left mouse button
 6. Close
    - Double click left on the clock to quit
-7. Switch to an operate the stopwatch
-   - Right click to bring up a menu
-   - Select Options ...
-   - Select Stopwatch for Run Mode
+7. Switch to and operate the Stopwatch
+   - Right click and select Stopwatch mode
    - To start the stopwatch, click on the start button
    - To pause the stopwatch, click on the pause button
    - To continue timing when paused, click on the start button
-   - To reset the time, lick on the reset button
+   - To reset the time, click on the reset button
+8. Switch to and operate the Timer
+   - Right click and select Timer mode
+   - To set the Timer, hold shift while scrolling the mouse wheel. If the mouse is in the left third of the clock, then the hours will change. If the mouse is in the middle third of the clock, then the minutes will change. If the mosue in the right third of the clock, then the seconds will change. The Timer must be stopped or paused.
+   - To start the timer, click on the start button
+   - To pause the timer, click on the pause button
+   - To continue timing when paused, click on the start button
+   - To reset the timer, click on the reset button
 
 ---
 ## 🧪 Future Enhancements

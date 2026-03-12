@@ -104,16 +104,22 @@ begin
 
   TForm(Sender).Caption := 'Options';
 
-  // disable experimental timer mode (second option)
-  for i := 0 to RadioGroupRunMode.ControlCount - 1 do
-    if RadioGroupRunMode.Controls[i] is TRadioButton then
-      TRadioButton(RadioGroupRunMode.Controls[i]).Enabled := (i <> 1);
+//  // disable experimental timer mode (second option)
+//  for i := 0 to RadioGroupRunMode.ControlCount - 1 do
+//    if RadioGroupRunMode.Controls[i] is TRadioButton then
+//      TRadioButton(RadioGroupRunMode.Controls[i]).Enabled := (i <> 1);
 end;
+
 
 procedure TFormOptions.RadioGroupRunModeClick(Sender: TObject);
 begin
   AppOptions.RunMode := TRunMode(RadioGroupRunMode.ItemIndex);
+  if RadioGroupRunMode.ItemIndex = 0 then
+    RadioGroupTimeFormat.Enabled := True
+  else
+    RadioGroupTimeFormat.Enabled := False; // disable Time Format buttons if not in clock mode
 end;
+
 
 procedure TFormOptions.RadioGroupTimeFormatClick(Sender: TObject);
 begin
