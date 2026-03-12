@@ -1,3 +1,8 @@
+{ Copyright (c) 2026 Mister Fussy
+  MIT License: Permission granted to use, copy, modify,
+  and distribute this software. See LICENSE for details.
+  Provided "AS IS" without warranty. }
+
 unit unit_form_instructions;
 
 {$mode ObjFPC}{$H+}
@@ -45,6 +50,7 @@ begin
   inherited;
   TForm(Sender).Caption := 'Instructions';
 end;
+
 
 end.
 

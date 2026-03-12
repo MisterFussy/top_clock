@@ -7,6 +7,7 @@ object FormMain: TFormMain
   ClientHeight = 181
   ClientWidth = 469
   DesignTimePPI = 144
+  Font.Height = -18
   PopupMenu = PopupMenu1
   Position = poDefault
   LCLVersion = '4.4.0.0'
@@ -261,6 +262,7 @@ object FormMain: TFormMain
     }
     Proportional = True
     Stretch = True
+    OnClick = ImageStopClick
   end
   object ImageReset: TImage
     Left = 224
@@ -357,6 +359,21 @@ object FormMain: TFormMain
   object PopupMenu1: TPopupMenu
     Left = 136
     Top = 96
+    object MenuItemClock: TMenuItem
+      Caption = 'Clock mode'
+      OnClick = MenuItemClockClick
+    end
+    object MenuItemTimer: TMenuItem
+      Caption = 'Timer mode'
+      OnClick = MenuItemTimerClick
+    end
+    object MenuItemStopwatch: TMenuItem
+      Caption = 'Stopwatch mode'
+      OnClick = MenuItemStopwatchClick
+    end
+    object Separator2: TMenuItem
+      Caption = '-'
+    end
     object MenuItemInstruction: TMenuItem
       Caption = 'Instruction ,,,'
       OnClick = MenuItemInstructionClick
