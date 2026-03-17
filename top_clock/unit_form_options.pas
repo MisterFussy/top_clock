@@ -86,7 +86,7 @@ begin
 
 procedure TFormOptions.ButtonTextColorClick(Sender: TObject);
 begin
-  ColorDialog1.Color := AppOptions.DisplayColor;
+  ColorDialog1.Color     := AppOptions.DisplayColor;
   if ColorDialog1.Execute then
     AppOptions.TextColor := ColorDialog1.Color;
 end;
@@ -97,23 +97,15 @@ begin
 end;
 
 procedure TFormOptions.FormCreate(Sender: TObject);
-var
-  i  : integer;
 begin
-  inherited;
-
-  TForm(Sender).Caption := 'Options';
-
-//  // disable experimental timer mode (second option)
-//  for i := 0 to RadioGroupRunMode.ControlCount - 1 do
-//    if RadioGroupRunMode.Controls[i] is TRadioButton then
-//      TRadioButton(RadioGroupRunMode.Controls[i]).Enabled := (i <> 1);
+  Caption                     := 'Options';
+  CheckBoxShowSeconds.Checked := AppOptions.ShowSeconds;
 end;
 
 
 procedure TFormOptions.RadioGroupRunModeClick(Sender: TObject);
 begin
-  AppOptions.RunMode := TRunMode(RadioGroupRunMode.ItemIndex);
+  AppOptions.RunMode             := TRunMode(RadioGroupRunMode.ItemIndex);
   if RadioGroupRunMode.ItemIndex = 0 then
     RadioGroupTimeFormat.Enabled := True
   else
@@ -123,10 +115,10 @@ end;
 
 procedure TFormOptions.RadioGroupTimeFormatClick(Sender: TObject);
 begin
-  inherited;
   if RadioGroupTimeFormat.ItemIndex <> -1 then
     AppOptions.TimeFormat := TTimeFormat(RadioGroupTimeFormat.ItemIndex);
-  AppOptions.ShowSeconds := CheckBoxShowSeconds.Checked;
+
+  AppOptions.ShowSeconds  := CheckBoxShowSeconds.Checked;
 end;
 
 end.
