@@ -11,7 +11,7 @@ uses
   {$ENDIF}
   Interfaces, // this includes the LCL widgetset
   Forms, unit_form_main, unit_options, unit_form_options, unit_form_about,
-  unit_form_placer, unit_form_instructions;
+  unit_form_placer, unit_form_instructions, unit_form_timerexpired;
 
 {$R *.res}
 
@@ -26,6 +26,7 @@ begin
   Application.CreateForm(TFormOptions, FormOptions);
   Application.CreateForm(TFormAbout, FormAbout);
   Application.CreateForm(TFormInstructions, FormInstructions);
+  Application.CreateForm(TFormTimerExpired, FormTimerExpired);
   Application.Run;
 end.
 

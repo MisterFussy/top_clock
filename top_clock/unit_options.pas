@@ -26,6 +26,7 @@ type
     RunMode      : TRunMode;
     ShowSeconds  : Boolean;
     TimerSeconds : Integer; // countdown timer
+    HideSeconds  : Integer; // hide time for clock
     Left         : Integer;
     Top          : Integer;
     Width        : Integer;
@@ -40,6 +41,7 @@ const
     RunMode      : rmClock;
     ShowSeconds  : True;
     TimerSeconds : 60;
+    HideSeconds  : 2;
     Left         : 0;
     Top          : 0;
     Width        : 134;
@@ -68,6 +70,7 @@ begin
     AppOptions.RunMode      := TRunMode(ini.ReadInteger('Options','RunMode',Ord(DefaultAppOptions.RunMode)));
     AppOptions.ShowSeconds  := ini.ReadBool('Options','ShowSeconds',DefaultAppOptions.ShowSeconds);
     AppOptions.TimerSeconds := ini.ReadInteger('Options','TimerSeconds',DefaultAppOptions.TimerSeconds);
+    AppOptions.HideSeconds  := ini.ReadInteger('Options','HideSeconds',DefaultAppOptions.HideSeconds);
     AppOptions.Left         := ini.ReadInteger('Window','Left',DefaultAppOptions.Left);
     AppOptions.Top          := ini.ReadInteger('Window','Top',DefaultAppOptions.Top);
     AppOptions.Width        := ini.ReadInteger('Window','Width',DefaultAppOptions.Width);
@@ -89,6 +92,7 @@ begin
     ini.WriteInteger('Options','RunMode',Ord(AppOptions.RunMode));
     ini.WriteBool   ('Options','ShowSeconds',AppOptions.ShowSeconds);
     ini.WriteInteger('Options','TimerSeconds',AppOptions.TimerSeconds);
+    ini.WriteInteger('Options','HideSeconds',AppOptions.HideSeconds);
     ini.WriteInteger('Window','Left',Form.Left);
     ini.WriteInteger('Window','Top',Form.Top);
     ini.WriteInteger('Window','Width',Form.Width);

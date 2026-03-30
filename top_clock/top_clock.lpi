@@ -75,6 +75,13 @@
         <Filename Value="unit_form_about.lfm"/>
         <IsPartOfProject Value="True"/>
       </Unit>
+      <Unit>
+        <Filename Value="unit_form_timerexpired.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="FormTimerExpired"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+      </Unit>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
