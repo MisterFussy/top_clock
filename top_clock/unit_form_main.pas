@@ -11,9 +11,9 @@ interface
 
 uses
   unit_options, unit_form_placer, unit_form_options, unit_form_instructions,
-  unit_form_about, StdCtrls, ExtCtrls, LCLIntf, LCLType, Windows, Classes,
-  SysUtils, Forms, Controls, Graphics, Dialogs, Menus, EditBtn, ButtonPanel,
-  Buttons, Types;
+  unit_form_about, unit_form_timerexpired,
+  StdCtrls, ExtCtrls, LCLIntf, LCLType, Windows, Classes, SysUtils, Forms,
+  Controls, Graphics, Dialogs, Menus, EditBtn, ButtonPanel, Buttons, Types;
 
 type
 
@@ -121,7 +121,7 @@ begin
   TimerSecond.Interval  := 1000;              // 1 second clock interval
   TimerSecond.Enabled   := True;
 
-  TimerHide.Interval    := 2000;              // 2 seconds, hide window time
+  TimerHide.Interval    := AppOptions.HideSeconds * 1000; // set timer to milliseconds
   TimerHide.Enabled     := False;
 
   BorderIcons           := [];                // disable all borders
@@ -397,12 +397,13 @@ begin
     begin
       if ssShift in Shift then
         begin
-          Visible           := False; // hide form
-          TimerHide.Enabled := True;  // start timer
-          AppOptions.Left   := Left;  // preserve window geomtery
-          AppOptions.Top    := Top;   // - see FormShow method for retrieval of preserved windoe geometry
-          AppOptions.Height := Height;
-          AppOptions.Width  := Width;
+          Visible            := False;                         // hide form
+          TimerHide.Interval := AppOptions.HideSeconds * 1000; // set timer to milliseconds
+          TimerHide.Enabled  := True;                          // start timer
+          AppOptions.Left    := Left;                          // preserve window geomtery
+          AppOptions.Top     := Top;                           // - see FormShow method for retrieval of preserved windoe geometry
+          AppOptions.Height  := Height;
+          AppOptions.Width   := Width;
         end
       else
         begin
@@ -460,7 +461,7 @@ begin
       end;
     rmTimer :
       begin
-        TimerState              := tCounting;
+        TimerState       := tCounting;
       end;
   end;
 end;
@@ -475,17 +476,19 @@ begin
       end;
     rmStopwatch :
       begin
-        StopwatchStart := now;
-        StopwatchPause := 0;
+        StopwatchStart           := now;
+        StopwatchPause           := 0;
         if StopwatchState = swPaused then
-          StopwatchState := swIdle;
+          StopwatchState         := swIdle;
       end;
     rmTimer :
       begin
-        TimerRemaining   := AppOptions.TimerSeconds;
+        TimerRemaining           := AppOptions.TimerSeconds;
+        FormTimerExpired.Visible := False;
       end;
   end;
 end;
+
 
 procedure TFormMain.ImageStopClick(Sender: TObject);
 begin
@@ -553,6 +556,7 @@ begin
   AppOptions.RunMode := rmStopwatch;
 end;
 
+
 procedure TFormMain.MenuItemTimerClick(Sender: TObject);
 begin
   AppOptions.RunMode := rmTimer;
@@ -596,14 +600,14 @@ end;
 procedure TFormMain.TimerSecondTimer(Sender: TObject);
 begin
  Invalidate;                    // call FormPaint() every second
- if TimerState = tCounting then // if timer coutning decrement Timer every second till zero
+ if TimerState = tCounting then // if timer counting decrement Timer every second till zero
    begin
    if TimerRemaining <> 0 then
      Dec(TimerRemaining);
    if TimerRemaining = 0 then   // at zero stop go to state tIdle, show message
      begin
-       TimerState := tIdle;
-       ShowMessage('Timer expired');
+       TimerState               := tIdle;
+       FormTimerExpired.Visible := True;
      end;
    end;
 end;
@@ -635,9 +639,8 @@ end;
 
 function TFormMain.FormatTimeString: string;
 var
-  date_time : TDateTime;
+  date_time        : TDateTime;
   date_time_format : String;
-  H, M, S          : Integer;
 begin
   case AppOptions.RunMode of
 

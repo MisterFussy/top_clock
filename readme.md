@@ -17,9 +17,16 @@ Its minimal footprint keeps the current time visible at all times without gettin
 - Stopwatch mode
 
 ---
-## 📸 Screenshot  
+## 📸 Screenshots
 
-![Clock Screenshot](top_clock.png)
+### Clock Screenshot
+![Clock Screenshot](media/top_clock.png)
+### Timer Screenshot
+![Timer Screenshot](media/timer_mode.png)
+### Stopwatch Screenshot
+![Stopwatch Screenshot](media/stopwatch_mode.png)
+### All Screenshot
+![All Screenshot](media/screenshot.png)
 
 ---
 ## 🛠️ How It Works
@@ -46,12 +53,17 @@ The clock uses:
 
 ```
 /icon_build
-  led7segment.png        – led7segment.txt translated output
-  led7segment.txt        – ASCII drawing of seven-segment display
-  led7segment_12_34.png  – led7segment.png post edited with 12:34 being displayed
-  readme.md              – Instructions on how to build an icon file
-  run.bat                – DOS batch file that runs text to .png translation
-  txt2png.py             – Python text to .png translator
+  led7segment.png            – led7segment.txt translated output
+  led7segment.txt            – ASCII drawing of seven-segment display
+  led7segment_12_34.png      – led7segment.png post edited with 12:34 being displayed
+  readme.md                  – Instructions on how to build an icon file
+  run.bat                    – DOS batch file that runs text to .png translation
+  txt2png.py                 – Python text to .png translator
+/media
+  top_clock.png              – Image of top clock in clock mode
+  stopwach_mode.png          – Image of top clock in stopwatch mode
+  timer_mode.png             – Image of top clock in timer mode
+  screenshot.png             – Image of top clock in multiple modes
 /top_clock
   top_clock.exe              – Courtesy, precompiled top clock
   top_clock.ico              – Icon file
@@ -66,6 +78,8 @@ The clock uses:
   unit_form_options.lfm      – Options dialog box's Lazarus Form Metadata file
   unit_form_options.pas      – Options dialog box's Pascal source
   unit_form_placer.pas       – Form placer (non-GUI) Pascal source
+  unit_form_timerexpired.lfm – Timer expiration dialog box's Lazarus Form Metadata file
+  unit_form_timerexpired.pas – Timer expiration dialog box's Pascal source
   unit_options.pas           – Options common variables (non-GUI) Pascal source
 /.gitignore                  – The .gitignore file
 /LICENSE                     – MIT license file

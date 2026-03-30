@@ -1,53 +1,106 @@
 object FormInstructions: TFormInstructions
   Left = 478
-  Height = 234
+  Height = 315
   Top = 37
-  Width = 372
+  Width = 378
   Caption = 'FormInstructions'
-  ClientHeight = 234
-  ClientWidth = 372
+  ClientHeight = 315
+  ClientWidth = 378
   DesignTimePPI = 144
   LCLVersion = '4.4.0.0'
   OnCreate = FormCreate
-  object LabelActionTitle: TLabel
+  OnDblClick = FormDblClick
+  object GroupBoxTimerMode: TGroupBox
     Left = 8
-    Height = 25
-    Top = 8
-    Width = 56
-    Caption = 'Action'
-    Font.Style = [fsBold]
-    ParentFont = False
+    Height = 88
+    Top = 216
+    Width = 358
+    Caption = 'Timer Mode Instructions'
+    ClientHeight = 58
+    ClientWidth = 354
+    TabOrder = 1
+    object LabelActionsTimerMode: TLabel
+      Left = 39
+      Height = 25
+      Top = 24
+      Width = 97
+      Caption = 'adjust Timer'
+      OnDblClick = FormDblClick
+    end
+    object LabelInstructionsMode: TLabel
+      Left = 150
+      Height = 25
+      Top = 24
+      Width = 231
+      Caption = 'Shift Mouse Wheel Up/Down'
+      OnDblClick = FormDblClick
+    end
+    object LabelInstructionTitleTimerMode: TLabel
+      Left = 150
+      Height = 25
+      Top = 0
+      Width = 93
+      Caption = 'Instruction'
+      Font.Style = [fsBold]
+      ParentFont = False
+      OnDblClick = FormDblClick
+    end
+    object LabelActionTitleTimerMode: TLabel
+      Left = 80
+      Height = 25
+      Top = 0
+      Width = 56
+      Caption = 'Action'
+      Font.Style = [fsBold]
+      ParentFont = False
+      OnDblClick = FormDblClick
+    end
   end
-  object LabelInstructionTitle: TLabel
-    Left = 128
-    Height = 25
-    Top = 8
-    Width = 93
-    Caption = 'Instruction'
-    Font.Style = [fsBold]
-    ParentFont = False
-  end
-  object LabelActions: TLabel
+  object GroupBoxGeneral: TGroupBox
     Left = 8
-    Height = 150
-    Top = 32
-    Width = 107
-    Caption = 'move clock'#13#10'fade in/out'#13#10'popup menu'#13#10'hide for 2 sec'#13#10'turn off clock'#13#10'adjust Timer'
-  end
-  object LabelInstructions: TLabel
-    Left = 128
-    Height = 150
-    Top = 32
-    Width = 231
-    Caption = 'Left Mouse Down Drag'#13#10'Mouse Wheel Up/Down'#13#10'Right Mouse Click'#13#10'Shift+Left Mouse Click'#13#10'Left Mouse Double Click'#13#10'Shift Mouse Wheel Up/Down'
-  end
-  object ButtonClose: TButton
-    Left = 64
-    Height = 38
-    Top = 184
-    Width = 236
-    Caption = 'Close Instruction Dialog'
+    Height = 184
+    Top = 16
+    Width = 358
+    Caption = 'General Instructions'
+    ClientHeight = 154
+    ClientWidth = 354
     TabOrder = 0
-    OnClick = ButtonCloseClick
+    object LabelInstructions: TLabel
+      Left = 150
+      Height = 125
+      Top = 24
+      Width = 192
+      Caption = 'Left Mouse Down Drag'#13#10'Mouse Wheel Up/Down'#13#10'Right Mouse Click'#13#10'Shift+Left Mouse Click'#13#10'Left Mouse Double Click'
+      OnDblClick = FormDblClick
+    end
+    object LabelActions: TLabel
+      Left = 8
+      Height = 125
+      Top = 24
+      Width = 130
+      Alignment = taRightJustify
+      Caption = 'move clock'#13#10'fade in/out'#13#10'popup menu'#13#10'hide for XXX sec'#13#10'turn off clock'
+      OnDblClick = FormDblClick
+    end
+    object LabelActionTitle: TLabel
+      Left = 83
+      Height = 25
+      Top = 0
+      Width = 56
+      Caption = 'Action'
+      Font.Style = [fsBold]
+      ParentFont = False
+      OnDblClick = FormDblClick
+    end
+    object LabelInstructionTitle: TLabel
+      Left = 150
+      Height = 25
+      Top = 0
+      Width = 93
+      Caption = 'Instruction'
+      Font.Style = [fsBold]
+      ParentFont = False
+      OnDblClick = FormDblClick
+    end
   end
 end

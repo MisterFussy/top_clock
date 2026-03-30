@@ -1,0 +1,24 @@
+object FormTimerExpired: TFormTimerExpired
+  Left = 574
+  Height = 121
+  Top = 37
+  Width = 551
+  Caption = 'FormTimerExpired'
+  ClientHeight = 121
+  ClientWidth = 551
+  DesignTimePPI = 144
+  LCLVersion = '4.4.0.0'
+  OnCreate = FormCreate
+  OnDblClick = FormDblClick
+  OnShow = FormShow
+  object LabelTimerExpired: TLabel
+    Left = 8
+    Height = 106
+    Top = 8
+    Width = 527
+    Caption = 'Timer Expired !'
+    Font.Height = -80
+    ParentFont = False
+    OnDblClick = FormDblClick
+  end
+end

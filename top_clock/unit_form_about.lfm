@@ -1,14 +1,15 @@
 object FormAbout: TFormAbout
   Left = 478
-  Height = 185
+  Height = 141
   Top = 37
   Width = 377
   Caption = 'FormAbout'
-  ClientHeight = 185
+  ClientHeight = 141
   ClientWidth = 377
   DesignTimePPI = 144
   LCLVersion = '4.4.0.0'
   OnCreate = FormCreate
+  OnDblClick = FormDblClick
   object LabelLink: TLabel
     Left = 8
     Height = 25
@@ -19,20 +20,12 @@ object FormAbout: TFormAbout
     OnMouseEnter = LabelLinkMouseEnter
     OnMouseLeave = LabelLinkMouseLeave
   end
-  object ButtonClose: TButton
-    Left = 88
-    Height = 38
-    Top = 136
-    Width = 201
-    Caption = 'Close About Dialog'
-    TabOrder = 0
-    OnClick = ButtonCloseClick
-  end
   object LabelAbout: TLabel
     Left = 8
     Height = 75
     Top = 8
-    Width = 329
-    Caption = 'Brought to you by: Mister Fussy'#13#10#13#10'Latest executble and source available at:   '
+    Width = 338
+    Caption = 'Brought to you by: Mister Fussy'#13#10#13#10'Latest executable and source available at:   '
+    OnDblClick = FormDblClick
   end
 end

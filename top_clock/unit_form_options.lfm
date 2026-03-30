@@ -1,20 +1,21 @@
 object FormOptions: TFormOptions
   Left = 490
-  Height = 260
+  Height = 366
   Top = 37
-  Width = 397
+  Width = 382
   Caption = 'FormOptions'
-  ClientHeight = 260
-  ClientWidth = 397
+  ClientHeight = 366
+  ClientWidth = 382
   DesignTimePPI = 144
   LCLVersion = '4.4.0.0'
   OnCreate = FormCreate
+  OnDblClick = FormDblClick
   OnShow = FormShow
   object RadioGroupTimeFormat: TRadioGroup
-    Left = 8
-    Height = 144
-    Top = 8
-    Width = 183
+    Left = 12
+    Height = 124
+    Top = 144
+    Width = 188
     AutoFill = True
     Caption = 'Time Format'
     ChildSizing.LeftRightSpacing = 6
@@ -24,29 +25,31 @@ object FormOptions: TFormOptions
     ChildSizing.ShrinkVertical = crsScaleChilds
     ChildSizing.Layout = cclLeftToRightThenTopToBottom
     ChildSizing.ControlsPerLine = 1
-    ClientHeight = 114
-    ClientWidth = 179
+    ClientHeight = 94
+    ClientWidth = 184
     Items.Strings = (
       '12 Hour'
       '24 Hour'
     )
+    ParentBackground = False
     TabOrder = 0
     OnClick = RadioGroupTimeFormatClick
+    OnDblClick = FormDblClick
     object CheckBoxShowSeconds: TCheckBox
       Left = 6
-      Height = 38
-      Top = 76
-      Width = 167
+      Height = 31
+      Top = 63
+      Width = 172
       Caption = 'Show Seconds'
       TabOrder = 0
       OnClick = CheckBoxShowSecondsClick
     end
   end
   object RadioGroupRunMode: TRadioGroup
-    Left = 200
-    Height = 144
+    Left = 12
+    Height = 124
     Top = 8
-    Width = 183
+    Width = 188
     AutoFill = True
     Caption = 'Run Mode'
     ChildSizing.LeftRightSpacing = 6
@@ -56,53 +59,139 @@ object FormOptions: TFormOptions
     ChildSizing.ShrinkVertical = crsScaleChilds
     ChildSizing.Layout = cclLeftToRightThenTopToBottom
     ChildSizing.ControlsPerLine = 1
-    ClientHeight = 114
-    ClientWidth = 179
+    ClientHeight = 94
+    ClientWidth = 184
     Items.Strings = (
       'Clock'
       'Timer'
       'Stopwatch'
     )
+    ParentBackground = False
     TabOrder = 1
     OnClick = RadioGroupRunModeClick
+    OnDblClick = FormDblClick
   end
-  object EditTimerSeconds: TEdit
-    Left = 311
-    Height = 33
-    Top = 160
-    Width = 72
-    Enabled = False
+  object GroupBoxAppearance: TGroupBox
+    Left = 217
+    Height = 124
+    Top = 8
+    Width = 152
+    Caption = 'Appearance'
+    ClientHeight = 94
+    ClientWidth = 148
     TabOrder = 2
-    Text = 'EditTimerSeconds'
-    Visible = False
-    OnClick = EditTimerSecondsClick
+    OnDblClick = FormDblClick
+    object ButtonDisplayColor: TButton
+      Left = 10
+      Height = 38
+      Top = 0
+      Width = 124
+      Caption = 'Display Color'
+      TabOrder = 0
+      OnClick = ButtonDisplayColorClick
+    end
+    object ButtonTextColor: TButton
+      Left = 10
+      Height = 38
+      Top = 48
+      Width = 124
+      Caption = 'Text Color'
+      TabOrder = 1
+      OnClick = ButtonTextColorClick
+    end
   end
-  object ButtonDisplayColor: TButton
-    Left = 8
-    Height = 38
-    Top = 160
-    Width = 184
-    Caption = 'Display Color'
+  object GroupBoxControl: TGroupBox
+    Left = 216
+    Height = 84
+    Top = 144
+    Width = 152
+    Caption = 'Control'
+    ClientHeight = 54
+    ClientWidth = 148
     TabOrder = 3
-    OnClick = ButtonDisplayColorClick
+    OnDblClick = FormDblClick
+    object ButtonLoadDefaults: TButton
+      Left = 10
+      Height = 38
+      Top = 0
+      Width = 124
+      Caption = 'Load Defaults'
+      TabOrder = 0
+      OnClick = ButtonLoadDefaultsClick
+    end
   end
-  object ButtonTextColor: TButton
-    Left = 8
-    Height = 38
-    Top = 200
+  object GroupBoxHideTime: TGroupBox
+    Left = 16
+    Height = 73
+    Top = 280
     Width = 184
-    Caption = 'Text Color'
+    Caption = 'Hide Time (H:M:S)'
+    ClientHeight = 43
+    ClientWidth = 180
     TabOrder = 4
-    OnClick = ButtonTextColorClick
-  end
-  object ButtonLoadDefaults: TButton
-    Left = 200
-    Height = 38
-    Top = 200
-    Width = 183
-    Caption = 'Load Defaults'
-    TabOrder = 5
-    OnClick = ButtonLoadDefaultsClick
+    object EditHH: TEdit
+      Left = 8
+      Height = 33
+      Top = 0
+      Width = 28
+      TabOrder = 0
+      Text = '00'
+      OnChange = EditHHMMSSChange
+      OnEditingDone = EditHHEditingDone
+    end
+    object EditMM: TEdit
+      Left = 64
+      Height = 33
+      Top = 0
+      Width = 28
+      TabOrder = 1
+      Text = '00'
+      OnChange = EditHHMMSSChange
+      OnEditingDone = EditMMEditingDone
+    end
+    object EditSS: TEdit
+      Left = 120
+      Height = 33
+      Top = 0
+      Width = 28
+      TabOrder = 2
+      Text = '00'
+      OnChange = EditHHMMSSChange
+      OnEditingDone = EditSSEditingDone
+    end
+    object UpDownHH: TUpDown
+      Left = 36
+      Height = 33
+      Top = 0
+      Width = 26
+      Max = 24
+      Min = 0
+      Position = 0
+      TabOrder = 3
+      OnClick = UpDownHHClick
+    end
+    object UpDownMM: TUpDown
+      Left = 92
+      Height = 33
+      Top = 0
+      Width = 26
+      Max = 59
+      Min = 0
+      Position = 0
+      TabOrder = 4
+      OnClick = UpDownMMClick
+    end
+    object UpDownSS: TUpDown
+      Left = 148
+      Height = 33
+      Top = 0
+      Width = 26
+      Max = 59
+      Min = 0
+      Position = 0
+      TabOrder = 5
+      OnClick = UpDownSSClick
+    end
   end
   object ColorDialog1: TColorDialog
     Color = clBlack
@@ -128,7 +217,7 @@ object FormOptions: TFormOptions
       'ColorS=F0FBFF'
       'ColorT=A4A0A0'
     )
-    Left = 200
-    Top = 160
+    Left = 256
+    Top = 248
   end
 end

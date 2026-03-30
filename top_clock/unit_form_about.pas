@@ -18,11 +18,11 @@ type
   { TFormAbout }
 
   TFormAbout = class(TForm)
-    ButtonClose: TButton;
     LabelAbout: TLabel;
     LabelLink: TLabel;
     procedure ButtonCloseClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
+    procedure FormDblClick(Sender: TObject);
     procedure LabelLinkClick(Sender: TObject);
     procedure LabelLinkMouseEnter(Sender: TObject);
     procedure LabelLinkMouseLeave(Sender: TObject);
@@ -43,14 +43,19 @@ implementation
 
 procedure TFormAbout.FormCreate(Sender: TObject);
 begin
-  inherited;
-
-  TForm(Sender).Caption := 'About';
+  Caption              := 'About';
+  BorderStyle          := bsDialog;
+  FormStyle            := fsSystemStayOnTop; // stay on top
 
   LabelLink.Caption    := 'https://github.com/MisterFussy/top_clock';
   LabelLink.Cursor     := crHandPoint;
   LabelLink.Font.Color := clBlue;
   LabelLink.Font.Style := [fsUnderline];
+end;
+
+procedure TFormAbout.FormDblClick(Sender: TObject);
+begin
+  Close;
 end;
 
 
@@ -65,6 +70,7 @@ procedure TFormAbout.LabelLinkClick(Sender: TObject);
 begin
  OpenURL(TLabel(Sender).Caption);
 end;
+
 
 procedure TFormAbout.LabelLinkMouseEnter(Sender: TObject);
 begin
